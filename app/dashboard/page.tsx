@@ -72,12 +72,18 @@ export default async function DashboardPage() {
               <span className="text-slate-500 w-32">Rol:</span>
               <span
                 className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  profile?.rol === 'lider'
+                  profile?.rol === 'admin'
+                    ? 'bg-rose-100 text-rose-700'
+                    : profile?.rol === 'lider'
                     ? 'bg-purple-100 text-purple-700'
                     : 'bg-blue-100 text-blue-700'
                 }`}
               >
-                {profile?.rol === 'lider' ? '👑 Líder' : '🧑‍💼 Cajero'}
+                {profile?.rol === 'admin'
+                  ? '🛡️ Admin'
+                  : profile?.rol === 'lider'
+                  ? '👑 Líder'
+                  : '🧑‍💼 Cajero'}
               </span>
             </div>
           </div>
