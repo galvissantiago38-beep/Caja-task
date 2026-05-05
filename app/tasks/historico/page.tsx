@@ -73,7 +73,10 @@ export default async function HistoricoPage() {
     query = query.in('task_id', ids)
   }
 
-  const { data: items, error } = await query.returns<CompletedInstance[]>()
+  const { data: items, error } = await query.overrideTypes<
+    CompletedInstance[],
+    { merge: false }
+  >()
   if (error) {
     console.error('histórico error:', error)
     redirect('/error')
@@ -92,7 +95,7 @@ export default async function HistoricoPage() {
       .from('profiles')
       .select('id, nombre, email')
       .in('id', completadoresIds)
-      .returns<ProfileLite[]>()
+      .overrideTypes<ProfileLite[], { merge: false }>()
     completadoresMap = new Map(
       (completadores ?? []).map((p) => [p.id, p])
     )

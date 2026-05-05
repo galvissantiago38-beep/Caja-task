@@ -63,7 +63,7 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
       'id, fecha_limite, notificada_dia, notificada_apertura, task:tasks!task_id(id, titulo, descripcion, frecuencia, prioridad, hora_limite, apertura, asignado:profiles!asignado_a(email, nombre))'
     )
     .is('completada_en', null)
-    .returns<Instance[]>()
+    .overrideTypes<Instance[], { merge: false }>()
 
   if (error) {
     console.error('runNotifications fetch error:', error)
@@ -189,7 +189,7 @@ async function generateMissingDailyInstances(
     .select('id')
     .eq('frecuencia', 'diaria')
     .eq('activa', true)
-    .returns<{ id: string }[]>()
+    .overrideTypes<{ id: string }[], { merge: false }>()
 
   if (!dailies || dailies.length === 0) return 0
   const taskIds = dailies.map((d) => d.id)
@@ -199,7 +199,7 @@ async function generateMissingDailyInstances(
     .select('task_id')
     .in('task_id', taskIds)
     .eq('fecha_limite', todayBogota)
-    .returns<{ task_id: string }[]>()
+    .overrideTypes<{ task_id: string }[], { merge: false }>()
 
   const yaTienen = new Set((existing ?? []).map((e) => e.task_id))
   const faltantes = dailies.filter((d) => !yaTienen.has(d.id))

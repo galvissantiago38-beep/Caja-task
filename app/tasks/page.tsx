@@ -6,6 +6,7 @@ import { completarInstancia, deleteTask } from './actions'
 import DeleteTaskButton from './_components/DeleteTaskButton'
 import PlazoChip from './_components/PlazoChip'
 import CompletarBoton from './_components/CompletarBoton'
+import TaskFilterBar from './_components/TaskFilterBar'
 
 const PRIORIDAD_STYLES: Record<string, string> = {
   alta: 'bg-red-100 text-red-700',
@@ -71,7 +72,13 @@ type CajeroInstance = {
 export default async function TasksPage({
   searchParams,
 }: {
-  searchParams: Promise<{ error?: string; ok?: string }>
+  searchParams: Promise<{
+    error?: string
+    ok?: string
+    q?: string
+    prioridad?: string
+    asignado?: string
+  }>
 }) {
   const supabase = await createClient()
   const sp = await searchParams
@@ -135,7 +142,11 @@ export default async function TasksPage({
         )}
 
         {esGestor ? (
-          <GestorView />
+          <GestorView
+            q={sp.q}
+            prioridad={sp.prioridad}
+            asignado={sp.asignado}
+          />
         ) : (
           <CajeroView userId={user.id} />
         )}
@@ -144,17 +155,47 @@ export default async function TasksPage({
   )
 }
 
-async function GestorView() {
+async function GestorView({
+  q,
+  prioridad,
+  asignado,
+}: {
+  q?: string
+  prioridad?: string
+  asignado?: string
+}) {
   const supabase = await createClient()
 
-  const { data: tasks, error } = await supabase
+  let query = supabase
     .from('tasks')
     .select(
       'id, titulo, frecuencia, prioridad, hora_limite, fecha_limite, apertura, asignado_a, asignado:profiles!asignado_a(id, nombre, email)'
     )
     .eq('activa', true)
     .order('created_at', { ascending: false })
-    .returns<GestorTask[]>()
+
+  if (q && q.trim()) {
+    query = query.ilike('titulo', `%${q.trim()}%`)
+  }
+  if (prioridad && ['alta', 'media', 'baja'].includes(prioridad)) {
+    query = query.eq('prioridad', prioridad)
+  }
+  if (asignado && asignado !== 'all') {
+    query = query.eq('asignado_a', asignado)
+  }
+
+  const [{ data: tasks, error }, { data: cajeros }] = await Promise.all([
+    query.overrideTypes<GestorTask[], { merge: false }>(),
+    supabase
+      .from('profiles')
+      .select('id, nombre, email')
+      .eq('rol', 'cajero')
+      .order('nombre', { ascending: true })
+      .overrideTypes<
+        { id: string; nombre: string | null; email: string }[],
+        { merge: false }
+      >(),
+  ])
 
   if (error) {
     console.error('Error cargando tareas:', error)
@@ -162,8 +203,10 @@ async function GestorView() {
   }
 
   const lista = tasks ?? []
+  const cajerosLista = cajeros ?? []
+  const tieneFiltros = !!(q || prioridad || asignado)
 
-  if (lista.length === 0) {
+  if (lista.length === 0 && !tieneFiltros) {
     return (
       <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
         <div className="text-4xl mb-3">📋</div>
@@ -184,9 +227,23 @@ async function GestorView() {
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-      <div className="overflow-x-auto">
-        <table className="w-full text-left">
+    <div className="space-y-4">
+      <TaskFilterBar cajeros={cajerosLista} />
+
+      {lista.length === 0 ? (
+        <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+          <div className="text-4xl mb-3">🔍</div>
+          <h3 className="text-lg font-semibold text-slate-900 mb-1">
+            Sin resultados
+          </h3>
+          <p className="text-slate-500">
+            Prueba con otra búsqueda o quita los filtros.
+          </p>
+        </div>
+      ) : (
+        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
           <thead>
             <tr className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
               <th className="py-3 px-5 font-semibold">Tarea</th>
@@ -245,8 +302,10 @@ async function GestorView() {
               )
             })}
           </tbody>
-        </table>
-      </div>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -274,7 +333,7 @@ async function CajeroView({ userId }: { userId: string }) {
     .in('task_id', taskIds)
     .is('completada_en', null)
     .order('fecha_limite', { ascending: true })
-    .returns<CajeroInstance[]>()
+    .overrideTypes<CajeroInstance[], { merge: false }>()
 
   if (error) {
     console.error('Error cargando instancias:', error)

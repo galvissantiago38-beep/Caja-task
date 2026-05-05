@@ -52,7 +52,10 @@ export default async function UsersPage({
     query = query.or(`nombre.ilike.${term},email.ilike.${term}`)
   }
 
-  const { data: users } = await query.returns<Profile[]>()
+  const { data: users } = await query.overrideTypes<
+    Profile[],
+    { merge: false }
+  >()
   const lista = users ?? []
 
   return (

@@ -10,7 +10,10 @@ export default async function AdminHome() {
 
   const [{ data: users }, { count: tareasActivas }, { count: tareasInactivas }] =
     await Promise.all([
-      admin.from('profiles').select('rol').returns<RoleCount[]>(),
+      admin
+        .from('profiles')
+        .select('rol')
+        .overrideTypes<RoleCount[], { merge: false }>(),
       admin
         .from('tasks')
         .select('id', { count: 'exact', head: true })

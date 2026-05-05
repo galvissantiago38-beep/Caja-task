@@ -58,9 +58,17 @@ export default async function DashboardPage() {
         <SummaryCard counts={counts} esGestor={esGestor} />
 
         <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">
-            Tu información
-          </h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-lg font-semibold text-slate-900">
+              Tu información
+            </h2>
+            <Link
+              href="/profile"
+              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+            >
+              Editar perfil →
+            </Link>
+          </div>
 
           <div className="space-y-3">
             <div className="flex items-center gap-3">
@@ -164,7 +172,7 @@ async function fetchSummary(
       .from('task_instances')
       .select('id, fecha_limite')
       .is('completada_en', null)
-      .returns<InstanceLite[]>()
+      .overrideTypes<InstanceLite[], { merge: false }>()
     instances = data ?? []
   } else {
     const { data: misTareas } = await supabase
@@ -172,7 +180,7 @@ async function fetchSummary(
       .select('id')
       .eq('asignado_a', userId)
       .eq('activa', true)
-      .returns<{ id: string }[]>()
+      .overrideTypes<{ id: string }[], { merge: false }>()
     const ids = (misTareas ?? []).map((t) => t.id)
     if (ids.length > 0) {
       const { data } = await supabase
@@ -180,7 +188,7 @@ async function fetchSummary(
         .select('id, fecha_limite')
         .in('task_id', ids)
         .is('completada_en', null)
-        .returns<InstanceLite[]>()
+        .overrideTypes<InstanceLite[], { merge: false }>()
       instances = data ?? []
     }
   }
