@@ -12,10 +12,11 @@ export default async function EditTaskPage({
   const { id } = await params
   const { supabase } = await requireGestor()
 
-  // Cargar la tarea por id
   const { data: task, error: taskError } = await supabase
     .from('tasks')
-    .select('id, titulo, descripcion, frecuencia, dia_del_mes, prioridad, asignado_a')
+    .select(
+      'id, titulo, descripcion, frecuencia, prioridad, asignado_a, hora_limite, fecha_limite, apertura'
+    )
     .eq('id', id)
     .eq('activa', true)
     .single()

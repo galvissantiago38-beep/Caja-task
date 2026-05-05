@@ -9,22 +9,56 @@ type Cajero = {
   email: string
 }
 
-type Task = {
+export type TaskFormData = {
   id: string
   titulo: string
   descripcion: string | null
   frecuencia: string
-  dia_del_mes: number | null
   prioridad: string
   asignado_a: string | null
+  hora_limite: string | null
+  fecha_limite: string | null
+  apertura: string | null
 }
 
 type TaskFormProps = {
   cajeros: Cajero[]
-  task?: Task
+  task?: TaskFormData
   action: (formData: FormData) => void | Promise<void>
   submitLabel: string
 }
+
+type Frecuencia = 'diaria' | 'unica' | 'lapso'
+
+const FRECUENCIAS: {
+  value: Frecuencia
+  label: string
+  icon: string
+  desc: string
+  color: string
+}[] = [
+  {
+    value: 'diaria',
+    label: 'Diaria',
+    icon: '📅',
+    desc: 'Se repite todos los días con una hora límite.',
+    color: 'border-blue-500 bg-blue-50',
+  },
+  {
+    value: 'unica',
+    label: 'Definida',
+    icon: '🎯',
+    desc: 'Una sola vez, en una fecha y hora específicas.',
+    color: 'border-purple-500 bg-purple-50',
+  },
+  {
+    value: 'lapso',
+    label: 'Por lapso',
+    icon: '🗓️',
+    desc: 'Ventana de fechas: se abre un día y debe cerrarse antes de otro.',
+    color: 'border-emerald-500 bg-emerald-50',
+  },
+]
 
 const PRIORIDADES = [
   { value: 'alta', label: 'Alta', color: 'bg-red-100 text-red-700 border-red-300' },
@@ -32,8 +66,20 @@ const PRIORIDADES = [
   { value: 'baja', label: 'Baja', color: 'bg-green-100 text-green-700 border-green-300' },
 ]
 
-export default function TaskForm({ cajeros, task, action, submitLabel }: TaskFormProps) {
-  const [frecuencia, setFrecuencia] = useState(task?.frecuencia ?? 'unica')
+function normalizeFrecuencia(raw: string | undefined): Frecuencia {
+  if (raw === 'diaria' || raw === 'unica' || raw === 'lapso') return raw
+  return 'diaria'
+}
+
+export default function TaskForm({
+  cajeros,
+  task,
+  action,
+  submitLabel,
+}: TaskFormProps) {
+  const [frecuencia, setFrecuencia] = useState<Frecuencia>(
+    normalizeFrecuencia(task?.frecuencia)
+  )
   const [prioridad, setPrioridad] = useState(task?.prioridad ?? 'media')
 
   const sinCajeros = cajeros.length === 0
@@ -42,13 +88,17 @@ export default function TaskForm({ cajeros, task, action, submitLabel }: TaskFor
     <form action={action} className="space-y-6">
       {sinCajeros && (
         <div className="bg-amber-50 border border-amber-300 text-amber-800 rounded-lg p-4 text-sm">
-          ⚠️ No hay cajeros registrados todavía. Necesitas al menos un cajero para asignarle tareas.
+          ⚠️ No hay cajeros registrados todavía. Necesitas al menos un cajero
+          para asignarle tareas.
         </div>
       )}
 
       {/* Título */}
       <div>
-        <label htmlFor="titulo" className="block text-sm font-medium text-slate-700 mb-1">
+        <label
+          htmlFor="titulo"
+          className="block text-sm font-medium text-slate-700 mb-1"
+        >
           Título <span className="text-red-500">*</span>
         </label>
         <input
@@ -64,7 +114,10 @@ export default function TaskForm({ cajeros, task, action, submitLabel }: TaskFor
 
       {/* Descripción */}
       <div>
-        <label htmlFor="descripcion" className="block text-sm font-medium text-slate-700 mb-1">
+        <label
+          htmlFor="descripcion"
+          className="block text-sm font-medium text-slate-700 mb-1"
+        >
           Descripción
         </label>
         <textarea
@@ -77,48 +130,158 @@ export default function TaskForm({ cajeros, task, action, submitLabel }: TaskFor
         />
       </div>
 
-      {/* Frecuencia */}
+      {/* Tipo de tarea */}
       <div>
-        <label htmlFor="frecuencia" className="block text-sm font-medium text-slate-700 mb-1">
-          Frecuencia <span className="text-red-500">*</span>
-        </label>
-        <select
-          id="frecuencia"
-          name="frecuencia"
-          required
-          value={frecuencia}
-          onChange={(e) => setFrecuencia(e.target.value)}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          <option value="unica">Única</option>
-          <option value="diaria">Diaria</option>
-          <option value="semanal">Semanal</option>
-          <option value="mensual">Mensual</option>
-        </select>
+        <span className="block text-sm font-medium text-slate-700 mb-2">
+          Tipo de tarea <span className="text-red-500">*</span>
+        </span>
+        <div className="grid gap-2 sm:grid-cols-3">
+          {FRECUENCIAS.map((f) => {
+            const active = frecuencia === f.value
+            return (
+              <label
+                key={f.value}
+                className={`cursor-pointer border-2 rounded-xl p-3 transition-all ${
+                  active
+                    ? f.color
+                    : 'border-slate-200 bg-white hover:border-slate-300'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="frecuencia"
+                  value={f.value}
+                  checked={active}
+                  onChange={() => setFrecuencia(f.value)}
+                  className="sr-only"
+                />
+                <div className="flex items-center gap-2 mb-1">
+                  <span className="text-xl" aria-hidden>
+                    {f.icon}
+                  </span>
+                  <span className="font-semibold text-slate-900">{f.label}</span>
+                </div>
+                <p className="text-xs text-slate-600 leading-snug">{f.desc}</p>
+              </label>
+            )
+          })}
+        </div>
       </div>
 
-      {/* Día del mes (solo si frecuencia=mensual) */}
-      {frecuencia === 'mensual' && (
-        <div>
-          <label htmlFor="dia_del_mes" className="block text-sm font-medium text-slate-700 mb-1">
-            Día del mes (1–31)
-          </label>
-          <input
-            id="dia_del_mes"
-            name="dia_del_mes"
-            type="number"
-            min={1}
-            max={31}
-            defaultValue={task?.dia_del_mes ?? ''}
-            placeholder="Ej. 15"
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-        </div>
-      )}
+      {/* Plazo (cambia según el tipo) */}
+      <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-4">
+        <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+          <span>⏰</span> Plazo de ejecución
+        </h3>
 
-      {/* Prioridad (radios con colores) */}
+        {frecuencia === 'diaria' && (
+          <div>
+            <label
+              htmlFor="hora_limite"
+              className="block text-sm font-medium text-slate-700 mb-1"
+            >
+              Hora límite cada día <span className="text-red-500">*</span>
+            </label>
+            <input
+              id="hora_limite"
+              name="hora_limite"
+              type="time"
+              required
+              defaultValue={task?.hora_limite?.slice(0, 5) ?? '17:00'}
+              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <p className="text-xs text-slate-500 mt-1">
+              El cajero recibirá un aviso 2 horas antes de esta hora.
+            </p>
+          </div>
+        )}
+
+        {frecuencia === 'unica' && (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label
+                htmlFor="fecha_limite"
+                className="block text-sm font-medium text-slate-700 mb-1"
+              >
+                Fecha <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="fecha_limite"
+                name="fecha_limite"
+                type="date"
+                required
+                defaultValue={task?.fecha_limite ?? ''}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="hora_limite_unica"
+                className="block text-sm font-medium text-slate-700 mb-1"
+              >
+                Hora <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="hora_limite_unica"
+                name="hora_limite"
+                type="time"
+                required
+                defaultValue={task?.hora_limite?.slice(0, 5) ?? '17:00'}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <p className="text-xs text-slate-500 sm:col-span-2">
+              El cajero recibirá un aviso 24 horas antes.
+            </p>
+          </div>
+        )}
+
+        {frecuencia === 'lapso' && (
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label
+                htmlFor="apertura"
+                className="block text-sm font-medium text-slate-700 mb-1"
+              >
+                Apertura (se habilita) <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="apertura"
+                name="apertura"
+                type="date"
+                required
+                defaultValue={task?.apertura ?? ''}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label
+                htmlFor="fecha_limite_lapso"
+                className="block text-sm font-medium text-slate-700 mb-1"
+              >
+                Cierre (fecha límite) <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="fecha_limite_lapso"
+                name="fecha_limite"
+                type="date"
+                required
+                defaultValue={task?.fecha_limite ?? ''}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <p className="text-xs text-slate-500 sm:col-span-2">
+              Avisos: 1 día antes de la apertura y 1 día antes del cierre.
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Prioridad */}
       <div>
-        <span className="block text-sm font-medium text-slate-700 mb-2">Prioridad</span>
+        <span className="block text-sm font-medium text-slate-700 mb-2">
+          Prioridad
+        </span>
         <div className="flex gap-3 flex-wrap">
           {PRIORIDADES.map((p) => {
             const seleccionada = prioridad === p.value
@@ -126,7 +289,9 @@ export default function TaskForm({ cajeros, task, action, submitLabel }: TaskFor
               <label
                 key={p.value}
                 className={`cursor-pointer border-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                  seleccionada ? p.color : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
+                  seleccionada
+                    ? p.color
+                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
                 }`}
               >
                 <input
@@ -146,7 +311,10 @@ export default function TaskForm({ cajeros, task, action, submitLabel }: TaskFor
 
       {/* Asignado a */}
       <div>
-        <label htmlFor="asignado_a" className="block text-sm font-medium text-slate-700 mb-1">
+        <label
+          htmlFor="asignado_a"
+          className="block text-sm font-medium text-slate-700 mb-1"
+        >
           Asignado a <span className="text-red-500">*</span>
         </label>
         <select
