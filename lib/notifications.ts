@@ -33,6 +33,7 @@ type Instance = {
 }
 
 export type NotificationsRunSummary = {
+  instancias_generadas: number
   total_pendientes: number
   enviadas: number
   detalles: { kind: NotifKind; email: string; titulo: string }[]
@@ -43,6 +44,19 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
   const admin = createAdminClient()
   const resend = new Resend(process.env.RESEND_API_KEY!)
 
+  const now = new Date()
+  const todayBogota = ymdInBogota(now)
+  const tomorrowBogota = addDays(todayBogota, 1)
+
+  // 1) Generar instancias de hoy para diarias activas que aún no la tienen.
+  //    Sin esto, una tarea diaria solo tiene la instancia inicial y nunca se
+  //    "renueva" después de que el cajero la marca hecha.
+  const instancias_generadas = await generateMissingDailyInstances(
+    admin,
+    todayBogota
+  )
+
+  // 2) Levantar todas las instancias pendientes (ya con las recién creadas).
   const { data: instances, error } = await admin
     .from('task_instances')
     .select(
@@ -54,6 +68,7 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
   if (error) {
     console.error('runNotifications fetch error:', error)
     return {
+      instancias_generadas,
       total_pendientes: 0,
       enviadas: 0,
       detalles: [],
@@ -62,9 +77,6 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
   }
 
   const list = instances ?? []
-  const now = new Date()
-  const todayBogota = ymdInBogota(now)
-  const tomorrowBogota = addDays(todayBogota, 1)
 
   const detalles: NotificationsRunSummary['detalles'] = []
   const errores: NotificationsRunSummary['errores'] = []
@@ -158,11 +170,53 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
   }
 
   return {
+    instancias_generadas,
     total_pendientes: list.length,
     enviadas: detalles.length,
     detalles,
     errores,
   }
+}
+
+type AdminClient = ReturnType<typeof createAdminClient>
+
+async function generateMissingDailyInstances(
+  admin: AdminClient,
+  todayBogota: string
+): Promise<number> {
+  const { data: dailies } = await admin
+    .from('tasks')
+    .select('id')
+    .eq('frecuencia', 'diaria')
+    .eq('activa', true)
+    .returns<{ id: string }[]>()
+
+  if (!dailies || dailies.length === 0) return 0
+  const taskIds = dailies.map((d) => d.id)
+
+  const { data: existing } = await admin
+    .from('task_instances')
+    .select('task_id')
+    .in('task_id', taskIds)
+    .eq('fecha_limite', todayBogota)
+    .returns<{ task_id: string }[]>()
+
+  const yaTienen = new Set((existing ?? []).map((e) => e.task_id))
+  const faltantes = dailies.filter((d) => !yaTienen.has(d.id))
+
+  if (faltantes.length === 0) return 0
+
+  const rows = faltantes.map((d) => ({
+    task_id: d.id,
+    fecha_limite: todayBogota,
+  }))
+
+  const { error } = await admin.from('task_instances').insert(rows)
+  if (error) {
+    console.error('generateMissingDailyInstances:', error)
+    return 0
+  }
+  return rows.length
 }
 
 function ymdInBogota(date: Date): string {
