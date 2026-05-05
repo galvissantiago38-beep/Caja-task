@@ -45,7 +45,7 @@ export default async function TasksPage() {
     .eq('id', user.id)
     .single()
 
-  const esLider = profile?.rol === 'lider'
+  const esLider = profile?.rol === 'lider' || profile?.rol === 'admin'
 
   // Construimos la query: líder ve todas, cajero solo las suyas
   let query = supabase

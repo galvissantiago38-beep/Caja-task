@@ -2,36 +2,11 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
-
-// Helper: verifica que el usuario actual sea líder
-async function requireLider() {
-  const supabase = await createClient()
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/login')
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('rol')
-    .eq('id', user.id)
-    .single()
-
-  if (profile?.rol !== 'lider') {
-    redirect('/dashboard')
-  }
-
-  return { supabase, user }
-}
+import { requireGestor } from './_lib/require-gestor'
 
 // CREATE: crear una nueva tarea
 export async function createTask(formData: FormData) {
-  const { supabase, user } = await requireLider()
+  const { supabase, user } = await requireGestor()
 
   const titulo = formData.get('titulo') as string
   const descripcion = formData.get('descripcion') as string
@@ -68,7 +43,7 @@ export async function createTask(formData: FormData) {
 
 // UPDATE: actualizar una tarea existente
 export async function updateTask(id: string, formData: FormData) {
-  const { supabase } = await requireLider()
+  const { supabase } = await requireGestor()
 
   const titulo = formData.get('titulo') as string
   const descripcion = formData.get('descripcion') as string
@@ -106,7 +81,7 @@ export async function updateTask(id: string, formData: FormData) {
 
 // DELETE (soft): marca la tarea como inactiva
 export async function deleteTask(id: string) {
-  const { supabase } = await requireLider()
+  const { supabase } = await requireGestor()
 
   const { error } = await supabase
     .from('tasks')

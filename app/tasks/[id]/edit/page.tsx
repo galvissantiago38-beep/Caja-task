@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import { updateTask } from '../../actions'
+import { requireGestor } from '../../_lib/require-gestor'
 import TaskForm from '../../_components/TaskForm'
 
 export default async function EditTaskPage({
@@ -9,30 +9,8 @@ export default async function EditTaskPage({
 }: {
   params: Promise<{ id: string }>
 }) {
-  // En Next 15+, params es una Promise — hay que await
   const { id } = await params
-
-  const supabase = await createClient()
-
-  // Verificar usuario autenticado
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/login')
-  }
-
-  // Solo los líderes pueden editar tareas
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('rol')
-    .eq('id', user.id)
-    .single()
-
-  if (profile?.rol !== 'lider') {
-    redirect('/dashboard')
-  }
+  const { supabase } = await requireGestor()
 
   // Cargar la tarea por id
   const { data: task, error: taskError } = await supabase

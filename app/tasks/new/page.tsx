@@ -1,31 +1,11 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import { createTask } from '../actions'
+import { requireGestor } from '../_lib/require-gestor'
 import TaskForm from '../_components/TaskForm'
 
 export default async function NewTaskPage() {
-  const supabase = await createClient()
-
-  // Verificar usuario autenticado
-  const {
-    data: { user },
-  } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect('/login')
-  }
-
-  // Solo los líderes pueden crear tareas
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('rol')
-    .eq('id', user.id)
-    .single()
-
-  if (profile?.rol !== 'lider') {
-    redirect('/dashboard')
-  }
+  const { supabase } = await requireGestor()
 
   // Cargar cajeros para el select de "Asignado a"
   const { data: cajeros, error } = await supabase
