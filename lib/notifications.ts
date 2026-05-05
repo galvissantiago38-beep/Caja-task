@@ -1,8 +1,8 @@
 import 'server-only'
 import { Resend } from 'resend'
 import { createAdminClient } from './supabase/admin'
+import { addDays, formatDateEs, ymdInBogota } from './dates'
 
-const TZ_OFFSET_HOURS = 5
 const APP_URL =
   process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') ||
   'https://caja-task.vercel.app'
@@ -219,21 +219,6 @@ async function generateMissingDailyInstances(
   return rows.length
 }
 
-function ymdInBogota(date: Date): string {
-  const shifted = new Date(date.getTime() - TZ_OFFSET_HOURS * 60 * 60 * 1000)
-  return shifted.toISOString().slice(0, 10)
-}
-
-function addDays(ymd: string, n: number): string {
-  const [y, m, d] = ymd.split('-').map(Number)
-  const dt = new Date(Date.UTC(y, m - 1, d + n))
-  return dt.toISOString().slice(0, 10)
-}
-
-function formatDateEs(ymd: string): string {
-  const [y, m, d] = ymd.split('-')
-  return `${d}/${m}/${y}`
-}
 
 const SUBJECTS: Record<NotifKind, (titulo: string) => string> = {
   diaria_2h: (t) => `📅 Tu tarea de hoy: ${t}`,

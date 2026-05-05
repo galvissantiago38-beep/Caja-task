@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
+import { addDays, bucketize, ymdInBogota, type Bucket } from '@/lib/dates'
 import { completarInstancia, deleteTask } from './actions'
 import DeleteTaskButton from './_components/DeleteTaskButton'
 import PlazoChip from './_components/PlazoChip'
@@ -10,33 +11,6 @@ const PRIORIDAD_STYLES: Record<string, string> = {
   alta: 'bg-red-100 text-red-700',
   media: 'bg-amber-100 text-amber-700',
   baja: 'bg-green-100 text-green-700',
-}
-
-const TZ = 'America/Bogota'
-
-function ymdInTZ(date: Date, tz: string) {
-  return new Intl.DateTimeFormat('en-CA', {
-    timeZone: tz,
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-  }).format(date)
-}
-
-function addDays(ymd: string, days: number) {
-  const [y, m, d] = ymd.split('-').map(Number)
-  const dt = new Date(Date.UTC(y, m - 1, d + days))
-  return ymd && `${dt.getUTCFullYear()}-${String(dt.getUTCMonth() + 1).padStart(2, '0')}-${String(dt.getUTCDate()).padStart(2, '0')}`
-}
-
-type Bucket = 'vencida' | 'hoy' | 'mañana' | 'pronto' | 'despues'
-
-function bucketize(fecha: string, today: string, tomorrow: string, weekEnd: string): Bucket {
-  if (fecha < today) return 'vencida'
-  if (fecha === today) return 'hoy'
-  if (fecha === tomorrow) return 'mañana'
-  if (fecha <= weekEnd) return 'pronto'
-  return 'despues'
 }
 
 const BUCKET_META: Record<Bucket, { label: string; color: string; icon: string }> = {
@@ -315,7 +289,7 @@ async function CajeroView({ userId }: { userId: string }) {
     )
   }
 
-  const today = ymdInTZ(new Date(), TZ)
+  const today = ymdInBogota(new Date())
   const tomorrow = addDays(today, 1)
   const weekEnd = addDays(today, 7)
 
