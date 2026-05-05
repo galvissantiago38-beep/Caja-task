@@ -89,6 +89,28 @@ export default async function DashboardPage() {
           </div>
         </div>
 
+        {/* Panel de admin (solo admins) */}
+        {profile?.rol === 'admin' && (
+          <div className="bg-gradient-to-br from-rose-600 to-rose-700 text-white rounded-2xl shadow-lg p-6 mb-6">
+            <div className="flex items-start justify-between gap-4 flex-wrap">
+              <div>
+                <h2 className="text-lg font-semibold mb-1">
+                  🛡️ Panel de administración
+                </h2>
+                <p className="text-rose-100">
+                  Crea usuarios, asigna roles y gestiona el equipo.
+                </p>
+              </div>
+              <Link
+                href="/admin"
+                className="bg-white text-rose-700 px-4 py-2 rounded-lg font-medium hover:bg-rose-50 transition-colors"
+              >
+                Ir al panel
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* Accesos a tareas */}
         <div className="bg-white rounded-2xl shadow-lg p-6">
           <h2 className="text-lg font-semibold text-slate-900 mb-4">
@@ -97,6 +119,8 @@ export default async function DashboardPage() {
           <p className="text-slate-600 mb-4">
             {profile?.rol === 'lider'
               ? 'Gestiona las tareas del equipo: crea nuevas, edita o desactiva las existentes.'
+              : profile?.rol === 'admin'
+              ? 'Como admin puedes consultarlas. Para crearlas y asignarlas usa una cuenta con rol Líder.'
               : 'Consulta las tareas que tienes asignadas.'}
           </p>
           <div className="flex flex-wrap items-center gap-3">
