@@ -1,0 +1,252 @@
+import 'server-only'
+import { Resend } from 'resend'
+import { createAdminClient } from './supabase/admin'
+
+const TZ_OFFSET_HOURS = 5
+const APP_URL =
+  process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') ||
+  'https://caja-task.vercel.app'
+const EMAIL_FROM =
+  process.env.EMAIL_FROM || 'Caja Tasks <onboarding@resend.dev>'
+
+type NotifKind = 'diaria_2h' | 'definida_24h' | 'lapso_apertura' | 'lapso_cierre'
+
+type AsignadoLite = { email: string | null; nombre: string | null } | null
+
+type TaskLite = {
+  id: string
+  titulo: string
+  descripcion: string | null
+  frecuencia: string
+  prioridad: string
+  hora_limite: string | null
+  apertura: string | null
+  asignado: AsignadoLite
+}
+
+type Instance = {
+  id: string
+  fecha_limite: string
+  notificada_dia: boolean | null
+  notificada_apertura: boolean | null
+  task: TaskLite | null
+}
+
+export type NotificationsRunSummary = {
+  total_pendientes: number
+  enviadas: number
+  detalles: { kind: NotifKind; email: string; titulo: string }[]
+  errores: { instance_id: string; error: string }[]
+}
+
+export async function runNotifications(): Promise<NotificationsRunSummary> {
+  const admin = createAdminClient()
+  const resend = new Resend(process.env.RESEND_API_KEY!)
+
+  const { data: instances, error } = await admin
+    .from('task_instances')
+    .select(
+      'id, fecha_limite, notificada_dia, notificada_apertura, task:tasks!task_id(id, titulo, descripcion, frecuencia, prioridad, hora_limite, apertura, asignado:profiles!asignado_a(email, nombre))'
+    )
+    .is('completada_en', null)
+    .returns<Instance[]>()
+
+  if (error) {
+    console.error('runNotifications fetch error:', error)
+    return {
+      total_pendientes: 0,
+      enviadas: 0,
+      detalles: [],
+      errores: [{ instance_id: '-', error: error.message }],
+    }
+  }
+
+  const list = instances ?? []
+  const now = new Date()
+  const ONE_HOUR_MS = 60 * 60 * 1000
+
+  const detalles: NotificationsRunSummary['detalles'] = []
+  const errores: NotificationsRunSummary['errores'] = []
+
+  for (const inst of list) {
+    if (!inst.task) continue
+    const task = inst.task
+    const asignado = task.asignado
+    if (!asignado || !asignado.email) continue
+    const email: string = asignado.email
+    const nombreCajero: string | null = asignado.nombre
+
+    const send = async (kind: NotifKind, plazoText: string, flagColumn: 'notificada_dia' | 'notificada_apertura') => {
+      const subject = subjectFor(kind, task.titulo)
+      const html = renderEmail({
+        kind,
+        titulo: task.titulo,
+        descripcion: task.descripcion,
+        prioridad: task.prioridad,
+        plazoText,
+        nombreCajero,
+      })
+      const result = await resend.emails.send({
+        from: EMAIL_FROM,
+        to: email,
+        subject,
+        html,
+      })
+      if (result.error) {
+        throw new Error(result.error.message)
+      }
+      await admin
+        .from('task_instances')
+        .update({ [flagColumn]: true })
+        .eq('id', inst.id)
+      detalles.push({ kind, email, titulo: task.titulo })
+    }
+
+    try {
+      if (task.frecuencia === 'diaria' && !inst.notificada_dia && task.hora_limite) {
+        const deadline = buildDateInBogota(inst.fecha_limite, task.hora_limite)
+        const diff = deadline.getTime() - now.getTime()
+        if (diff > ONE_HOUR_MS && diff <= 2 * ONE_HOUR_MS) {
+          await send(
+            'diaria_2h',
+            `Hoy ${formatDateEs(inst.fecha_limite)} a las ${task.hora_limite.slice(0, 5)}`,
+            'notificada_dia'
+          )
+        }
+      } else if (task.frecuencia === 'unica' && !inst.notificada_dia) {
+        const hora = task.hora_limite ?? '23:59:00'
+        const deadline = buildDateInBogota(inst.fecha_limite, hora)
+        const diff = deadline.getTime() - now.getTime()
+        if (diff > 23 * ONE_HOUR_MS && diff <= 24 * ONE_HOUR_MS) {
+          await send(
+            'definida_24h',
+            `${formatDateEs(inst.fecha_limite)} a las ${hora.slice(0, 5)}`,
+            'notificada_dia'
+          )
+        }
+      } else if (task.frecuencia === 'lapso') {
+        if (!inst.notificada_apertura && task.apertura) {
+          const apertura = buildDateInBogota(task.apertura, '00:00:00')
+          const diff = apertura.getTime() - now.getTime()
+          if (diff > 23 * ONE_HOUR_MS && diff <= 24 * ONE_HOUR_MS) {
+            await send(
+              'lapso_apertura',
+              `Mañana ${formatDateEs(task.apertura)} se habilita la tarea`,
+              'notificada_apertura'
+            )
+          }
+        }
+        if (!inst.notificada_dia) {
+          const cierre = buildDateInBogota(inst.fecha_limite, '23:59:00')
+          const diff = cierre.getTime() - now.getTime()
+          if (diff > 23 * ONE_HOUR_MS && diff <= 24 * ONE_HOUR_MS) {
+            await send(
+              'lapso_cierre',
+              `Cierre: mañana ${formatDateEs(inst.fecha_limite)}`,
+              'notificada_dia'
+            )
+          }
+        }
+      }
+    } catch (err) {
+      errores.push({
+        instance_id: inst.id,
+        error: err instanceof Error ? err.message : String(err),
+      })
+      console.error('Notification error:', inst.id, err)
+    }
+  }
+
+  return {
+    total_pendientes: list.length,
+    enviadas: detalles.length,
+    detalles,
+    errores,
+  }
+}
+
+function buildDateInBogota(dateStr: string, timeStr: string): Date {
+  const [y, m, d] = dateStr.split('-').map(Number)
+  const [hh, mm] = timeStr.split(':').map(Number)
+  return new Date(Date.UTC(y, m - 1, d, hh + TZ_OFFSET_HOURS, mm))
+}
+
+function formatDateEs(ymd: string): string {
+  const [y, m, d] = ymd.split('-')
+  return `${d}/${m}/${y}`
+}
+
+const SUBJECTS: Record<NotifKind, (titulo: string) => string> = {
+  diaria_2h: (t) => `⏰ Vence en 2 horas: ${t}`,
+  definida_24h: (t) => `📅 Vence mañana: ${t}`,
+  lapso_apertura: (t) => `🗓️ Mañana se habilita: ${t}`,
+  lapso_cierre: (t) => `⚠️ Último día mañana: ${t}`,
+}
+
+function subjectFor(kind: NotifKind, titulo: string) {
+  return SUBJECTS[kind](titulo)
+}
+
+const HEADLINES: Record<NotifKind, string> = {
+  diaria_2h: 'Tu tarea diaria vence en 2 horas',
+  definida_24h: 'Tu tarea vence mañana',
+  lapso_apertura: 'Mañana se abre tu tarea',
+  lapso_cierre: 'Mañana es el último día',
+}
+
+const ACCENTS: Record<NotifKind, string> = {
+  diaria_2h: '#f59e0b',
+  definida_24h: '#3b82f6',
+  lapso_apertura: '#10b981',
+  lapso_cierre: '#ef4444',
+}
+
+const PRIORIDAD_COLOR: Record<string, string> = {
+  alta: '#dc2626',
+  media: '#d97706',
+  baja: '#16a34a',
+}
+
+function renderEmail(opts: {
+  kind: NotifKind
+  titulo: string
+  descripcion: string | null
+  prioridad: string
+  plazoText: string
+  nombreCajero: string | null
+}): string {
+  const accent = ACCENTS[opts.kind]
+  const prioColor = PRIORIDAD_COLOR[opts.prioridad] ?? '#475569'
+  const greeting = opts.nombreCajero ? `Hola ${escapeHtml(opts.nombreCajero)},` : 'Hola,'
+  return `<!doctype html>
+<html lang="es">
+<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;">
+  <div style="max-width:560px;margin:32px auto;padding:0 16px;">
+    <p style="color:#64748b;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 8px;">Caja Tasks</p>
+    <div style="background:white;border-radius:16px;padding:32px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
+      <h1 style="font-size:22px;font-weight:700;color:#0f172a;margin:0 0 8px;">${escapeHtml(HEADLINES[opts.kind])}</h1>
+      <p style="color:#64748b;margin:0 0 24px;">${greeting}</p>
+      <div style="border-left:4px solid ${accent};background:#f8fafc;padding:16px 18px;border-radius:0 8px 8px 0;">
+        <p style="font-weight:600;font-size:18px;color:#0f172a;margin:0 0 4px;">${escapeHtml(opts.titulo)}</p>
+        ${opts.descripcion ? `<p style="color:#475569;margin:8px 0;font-size:14px;line-height:1.5;">${escapeHtml(opts.descripcion)}</p>` : ''}
+        <p style="color:#475569;margin:12px 0 4px;font-size:14px;">⏰ ${escapeHtml(opts.plazoText)}</p>
+        <p style="color:${prioColor};margin:0;font-size:14px;font-weight:500;">⚡ Prioridad ${escapeHtml(opts.prioridad)}</p>
+      </div>
+      <div style="margin-top:24px;">
+        <a href="${APP_URL}/tasks" style="display:inline-block;background:#2563eb;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:500;font-size:15px;">Ir a mis tareas →</a>
+      </div>
+    </div>
+    <p style="color:#94a3b8;font-size:12px;margin:24px 0 0;text-align:center;">Recordatorio automático. Si ya la completaste, marca como hecha en la app.</p>
+  </div>
+</body>
+</html>`
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+}
