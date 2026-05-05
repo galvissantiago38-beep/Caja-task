@@ -63,7 +63,8 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
 
   const list = instances ?? []
   const now = new Date()
-  const ONE_HOUR_MS = 60 * 60 * 1000
+  const todayBogota = ymdInBogota(now)
+  const tomorrowBogota = addDays(todayBogota, 1)
 
   const detalles: NotificationsRunSummary['detalles'] = []
   const errores: NotificationsRunSummary['errores'] = []
@@ -103,49 +104,48 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
     }
 
     try {
-      if (task.frecuencia === 'diaria' && !inst.notificada_dia && task.hora_limite) {
-        const deadline = buildDateInBogota(inst.fecha_limite, task.hora_limite)
-        const diff = deadline.getTime() - now.getTime()
-        if (diff > ONE_HOUR_MS && diff <= 2 * ONE_HOUR_MS) {
-          await send(
-            'diaria_2h',
-            `Hoy ${formatDateEs(inst.fecha_limite)} a las ${task.hora_limite.slice(0, 5)}`,
-            'notificada_dia'
-          )
-        }
-      } else if (task.frecuencia === 'unica' && !inst.notificada_dia) {
+      // Cron diario (Hobby permite max 1 corrida/día). La idea: cada mañana,
+      // por cada instancia que aplique, mandamos su recordatorio una vez.
+      if (
+        task.frecuencia === 'diaria' &&
+        !inst.notificada_dia &&
+        task.hora_limite &&
+        inst.fecha_limite === todayBogota
+      ) {
+        await send(
+          'diaria_2h',
+          `Hoy ${formatDateEs(inst.fecha_limite)} a las ${task.hora_limite.slice(0, 5)}`,
+          'notificada_dia'
+        )
+      } else if (
+        task.frecuencia === 'unica' &&
+        !inst.notificada_dia &&
+        inst.fecha_limite === tomorrowBogota
+      ) {
         const hora = task.hora_limite ?? '23:59:00'
-        const deadline = buildDateInBogota(inst.fecha_limite, hora)
-        const diff = deadline.getTime() - now.getTime()
-        if (diff > 23 * ONE_HOUR_MS && diff <= 24 * ONE_HOUR_MS) {
+        await send(
+          'definida_24h',
+          `Mañana ${formatDateEs(inst.fecha_limite)} a las ${hora.slice(0, 5)}`,
+          'notificada_dia'
+        )
+      } else if (task.frecuencia === 'lapso') {
+        if (
+          !inst.notificada_apertura &&
+          task.apertura &&
+          task.apertura === tomorrowBogota
+        ) {
           await send(
-            'definida_24h',
-            `${formatDateEs(inst.fecha_limite)} a las ${hora.slice(0, 5)}`,
-            'notificada_dia'
+            'lapso_apertura',
+            `Mañana ${formatDateEs(task.apertura)} se habilita la tarea`,
+            'notificada_apertura'
           )
         }
-      } else if (task.frecuencia === 'lapso') {
-        if (!inst.notificada_apertura && task.apertura) {
-          const apertura = buildDateInBogota(task.apertura, '00:00:00')
-          const diff = apertura.getTime() - now.getTime()
-          if (diff > 23 * ONE_HOUR_MS && diff <= 24 * ONE_HOUR_MS) {
-            await send(
-              'lapso_apertura',
-              `Mañana ${formatDateEs(task.apertura)} se habilita la tarea`,
-              'notificada_apertura'
-            )
-          }
-        }
-        if (!inst.notificada_dia) {
-          const cierre = buildDateInBogota(inst.fecha_limite, '23:59:00')
-          const diff = cierre.getTime() - now.getTime()
-          if (diff > 23 * ONE_HOUR_MS && diff <= 24 * ONE_HOUR_MS) {
-            await send(
-              'lapso_cierre',
-              `Cierre: mañana ${formatDateEs(inst.fecha_limite)}`,
-              'notificada_dia'
-            )
-          }
+        if (!inst.notificada_dia && inst.fecha_limite === tomorrowBogota) {
+          await send(
+            'lapso_cierre',
+            `Cierre: mañana ${formatDateEs(inst.fecha_limite)}`,
+            'notificada_dia'
+          )
         }
       }
     } catch (err) {
@@ -165,10 +165,15 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
   }
 }
 
-function buildDateInBogota(dateStr: string, timeStr: string): Date {
-  const [y, m, d] = dateStr.split('-').map(Number)
-  const [hh, mm] = timeStr.split(':').map(Number)
-  return new Date(Date.UTC(y, m - 1, d, hh + TZ_OFFSET_HOURS, mm))
+function ymdInBogota(date: Date): string {
+  const shifted = new Date(date.getTime() - TZ_OFFSET_HOURS * 60 * 60 * 1000)
+  return shifted.toISOString().slice(0, 10)
+}
+
+function addDays(ymd: string, n: number): string {
+  const [y, m, d] = ymd.split('-').map(Number)
+  const dt = new Date(Date.UTC(y, m - 1, d + n))
+  return dt.toISOString().slice(0, 10)
 }
 
 function formatDateEs(ymd: string): string {
@@ -177,8 +182,8 @@ function formatDateEs(ymd: string): string {
 }
 
 const SUBJECTS: Record<NotifKind, (titulo: string) => string> = {
-  diaria_2h: (t) => `⏰ Vence en 2 horas: ${t}`,
-  definida_24h: (t) => `📅 Vence mañana: ${t}`,
+  diaria_2h: (t) => `📅 Tu tarea de hoy: ${t}`,
+  definida_24h: (t) => `⏰ Vence mañana: ${t}`,
   lapso_apertura: (t) => `🗓️ Mañana se habilita: ${t}`,
   lapso_cierre: (t) => `⚠️ Último día mañana: ${t}`,
 }
@@ -188,7 +193,7 @@ function subjectFor(kind: NotifKind, titulo: string) {
 }
 
 const HEADLINES: Record<NotifKind, string> = {
-  diaria_2h: 'Tu tarea diaria vence en 2 horas',
+  diaria_2h: 'Tarea para hoy',
   definida_24h: 'Tu tarea vence mañana',
   lapso_apertura: 'Mañana se abre tu tarea',
   lapso_cierre: 'Mañana es el último día',
