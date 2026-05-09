@@ -15,9 +15,9 @@ function SubmitButton({ disabled }: { disabled?: boolean }) {
     <button
       type="submit"
       disabled={disabled || pending}
-      className="text-rose-600 hover:text-rose-800 text-sm font-medium disabled:text-slate-400 disabled:cursor-not-allowed"
+      className="text-[11px] uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 underline underline-offset-4 decoration-stone-200 hover:decoration-stone-900 transition-colors disabled:text-stone-300 disabled:no-underline disabled:cursor-not-allowed"
     >
-      {pending ? 'Eliminando…' : 'Eliminar'}
+      {pending ? 'Eliminando' : 'Eliminar'}
     </button>
   )
 }
@@ -34,7 +34,7 @@ export default function DeleteUserButton({
       onSubmit={(e) => {
         if (
           !confirm(
-            `¿Eliminar a "${nombre}"?\n\nEsto borra al usuario de Supabase Auth y su perfil. Las tareas que tenga asignadas pueden bloquear el borrado o quedar sin asignar.`
+            `¿Eliminar a "${nombre}"? Esto borra al usuario de Supabase Auth y su perfil.`
           )
         ) {
           e.preventDefault()

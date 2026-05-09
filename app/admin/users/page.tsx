@@ -23,8 +23,7 @@ const OK_MESSAGES: Record<string, string> = {
 
 const ERROR_MESSAGES: Record<string, string> = {
   auto: 'No puedes eliminar tu propia cuenta.',
-  eliminar:
-    'No fue posible eliminar al usuario. Puede tener tareas asignadas u otra restricción.',
+  eliminar: 'No fue posible eliminar al usuario.',
   _default: 'Algo salió mal. Intenta de nuevo.',
 }
 
@@ -52,29 +51,27 @@ export default async function UsersPage({
     query = query.or(`nombre.ilike.${term},email.ilike.${term}`)
   }
 
-  const { data: users } = await query.overrideTypes<
-    Profile[],
-    { merge: false }
-  >()
+  const { data: users } = await query.overrideTypes<Profile[], { merge: false }>()
   const lista = users ?? []
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-end justify-between flex-wrap gap-3">
+    <div className="space-y-10">
+      <div className="flex items-end justify-between flex-wrap gap-6">
         <div>
-          <h2 className="text-2xl font-bold text-slate-900">Usuarios</h2>
-          <p className="text-slate-600 mt-1">
-            {lista.length === 1
-              ? '1 usuario'
-              : `${lista.length} usuarios`}{' '}
-            en el sistema
+          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+            Equipo
+          </p>
+          <h1 className="font-serif text-4xl text-stone-900 mb-2">Usuarios</h1>
+          <p className="text-sm text-stone-600">
+            {lista.length === 1 ? '1 usuario' : `${lista.length} usuarios`} en
+            el sistema
           </p>
         </div>
         <Link
           href="/admin/users/new"
-          className="bg-rose-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-rose-700 transition-colors inline-flex items-center gap-1.5"
+          className="bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
         >
-          <span>+</span> Nuevo usuario
+          Nuevo usuario
         </Link>
       </div>
 
@@ -87,98 +84,89 @@ export default async function UsersPage({
 
       <UserFilterBar />
 
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        {lista.length === 0 ? (
-          <EmptyState filtered={!!(sp.q || sp.rol)} />
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="text-left text-xs font-semibold uppercase tracking-wide text-slate-500 px-5 py-3">
-                    Usuario
-                  </th>
-                  <th className="text-left text-xs font-semibold uppercase tracking-wide text-slate-500 px-5 py-3">
-                    Rol
-                  </th>
-                  <th className="text-right text-xs font-semibold uppercase tracking-wide text-slate-500 px-5 py-3">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {lista.map((u) => {
-                  const eresTu = u.id === currentUser.id
-                  const inicial =
-                    (u.nombre ?? u.email ?? '?').charAt(0).toUpperCase()
-                  return (
-                    <tr
-                      key={u.id}
-                      className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50 transition-colors"
-                    >
-                      <td className="px-5 py-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 bg-gradient-to-br from-slate-200 to-slate-300 rounded-full flex items-center justify-center font-semibold text-slate-700">
-                            {inicial}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="flex items-center gap-2">
-                              <p className="font-medium text-slate-900 truncate">
-                                {u.nombre || 'Sin nombre'}
-                              </p>
-                              {eresTu && (
-                                <span className="text-[11px] font-semibold text-rose-700 bg-rose-100 rounded-full px-2 py-0.5">
-                                  Tú
-                                </span>
-                              )}
-                            </div>
-                            <p className="text-sm text-slate-500 truncate">
-                              {u.email ?? '—'}
+      {lista.length === 0 ? (
+        <EmptyState filtered={!!(sp.q || sp.rol)} />
+      ) : (
+        <div className="border-t border-stone-200">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-stone-200 text-[10px] uppercase tracking-[0.18em] text-stone-500">
+                <th className="py-4 pr-4 font-medium">Usuario</th>
+                <th className="py-4 pr-4 font-medium">Rol</th>
+                <th className="py-4 pr-4 font-medium text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {lista.map((u) => {
+                const eresTu = u.id === currentUser.id
+                const inicial =
+                  (u.nombre ?? u.email ?? '?').charAt(0).toUpperCase()
+                return (
+                  <tr
+                    key={u.id}
+                    className="border-b border-stone-100 hover:bg-stone-50/50 transition-colors"
+                  >
+                    <td className="py-5 pr-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 border border-stone-300 flex items-center justify-center font-serif text-lg text-stone-900">
+                          {inicial}
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-3">
+                            <p className="text-stone-900 truncate">
+                              {u.nombre || 'Sin nombre'}
                             </p>
+                            {eresTu && (
+                              <span className="text-[9px] uppercase tracking-[0.2em] text-stone-500 border border-stone-300 px-1.5 py-0.5">
+                                Tú
+                              </span>
+                            )}
                           </div>
+                          <p className="text-sm text-stone-500 truncate">
+                            {u.email ?? '—'}
+                          </p>
                         </div>
-                      </td>
-                      <td className="px-5 py-4">
-                        <RoleBadge rol={u.rol} />
-                      </td>
-                      <td className="px-5 py-4">
-                        <div className="flex items-center justify-end gap-4">
-                          <Link
-                            href={`/admin/users/${u.id}/edit`}
-                            className="text-rose-600 hover:text-rose-800 text-sm font-medium"
-                          >
-                            Editar
-                          </Link>
-                          <DeleteUserButton
-                            action={deleteUser.bind(null, u.id)}
-                            nombre={u.nombre || u.email || 'este usuario'}
-                            disabled={eresTu}
-                            disabledReason={
-                              eresTu ? 'No puedes eliminar tu propia cuenta' : undefined
-                            }
-                          />
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+                      </div>
+                    </td>
+                    <td className="py-5 pr-4">
+                      <RoleBadge rol={u.rol} />
+                    </td>
+                    <td className="py-5 pr-4">
+                      <div className="flex items-center justify-end gap-6">
+                        <Link
+                          href={`/admin/users/${u.id}/edit`}
+                          className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
+                        >
+                          Editar
+                        </Link>
+                        <DeleteUserButton
+                          action={deleteUser.bind(null, u.id)}
+                          nombre={u.nombre || u.email || 'este usuario'}
+                          disabled={eresTu}
+                          disabledReason={
+                            eresTu ? 'No puedes eliminar tu propia cuenta' : undefined
+                          }
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   )
 }
 
 function EmptyState({ filtered }: { filtered: boolean }) {
   return (
-    <div className="text-center py-16 px-6">
-      <div className="text-4xl mb-3">{filtered ? '🔍' : '👥'}</div>
-      <h3 className="text-lg font-semibold text-slate-900 mb-1">
+    <div className="border-t border-stone-200 pt-20 text-center">
+      <h3 className="font-serif text-2xl text-stone-900 mb-2">
         {filtered ? 'Sin resultados' : 'Aún no hay usuarios'}
       </h3>
-      <p className="text-slate-500 mb-5">
+      <p className="text-sm text-stone-600 mb-8">
         {filtered
           ? 'Prueba con otra búsqueda o quita los filtros.'
           : 'Crea el primer usuario del equipo.'}
@@ -186,9 +174,9 @@ function EmptyState({ filtered }: { filtered: boolean }) {
       {!filtered && (
         <Link
           href="/admin/users/new"
-          className="inline-block bg-rose-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-rose-700 transition-colors"
+          className="inline-block bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
         >
-          + Crear usuario
+          Crear usuario
         </Link>
       )}
     </div>

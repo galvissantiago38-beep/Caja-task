@@ -1,11 +1,11 @@
 type Frecuencia = 'unica' | 'diaria' | 'semanal' | 'mensual' | 'lapso' | string
 
-const FRECUENCIA_LABELS: Record<string, { label: string; icon: string }> = {
-  diaria: { label: 'Diaria', icon: '📅' },
-  unica: { label: 'Definida', icon: '🎯' },
-  lapso: { label: 'Lapso', icon: '🗓️' },
-  semanal: { label: 'Semanal', icon: '📆' },
-  mensual: { label: 'Mensual', icon: '📆' },
+const FRECUENCIA_LABELS: Record<string, string> = {
+  diaria: 'Diaria',
+  unica: 'Definida',
+  lapso: 'Lapso',
+  semanal: 'Semanal',
+  mensual: 'Mensual',
 }
 
 function formatDate(d: string | null) {
@@ -31,28 +31,25 @@ export default function PlazoChip({
   fecha_limite: string | null
   apertura: string | null
 }) {
-  const meta = FRECUENCIA_LABELS[frecuencia] ?? {
-    label: frecuencia,
-    icon: '📋',
-  }
+  const label = FRECUENCIA_LABELS[frecuencia] ?? frecuencia
 
   let detalle = ''
   if (frecuencia === 'diaria' && hora_limite) {
-    detalle = `cada día a las ${formatHora(hora_limite)}`
+    detalle = `cada día · ${formatHora(hora_limite)}`
   } else if (frecuencia === 'unica' && fecha_limite) {
     detalle = `${formatDate(fecha_limite)}${
-      hora_limite ? ' a las ' + formatHora(hora_limite) : ''
+      hora_limite ? ' · ' + formatHora(hora_limite) : ''
     }`
   } else if (frecuencia === 'lapso' && apertura && fecha_limite) {
-    detalle = `${formatDate(apertura)} → ${formatDate(fecha_limite)}`
+    detalle = `${formatDate(apertura)} – ${formatDate(fecha_limite)}`
   }
 
   return (
-    <div className="inline-flex items-center gap-1.5 text-xs">
-      <span className="bg-slate-100 text-slate-700 px-2 py-0.5 rounded-full font-medium inline-flex items-center gap-1">
-        <span aria-hidden>{meta.icon}</span> {meta.label}
+    <div className="flex items-center gap-3 text-xs">
+      <span className="uppercase tracking-[0.18em] text-stone-900 text-[10px] font-medium">
+        {label}
       </span>
-      {detalle && <span className="text-slate-500">{detalle}</span>}
+      {detalle && <span className="text-stone-500">{detalle}</span>}
     </div>
   )
 }

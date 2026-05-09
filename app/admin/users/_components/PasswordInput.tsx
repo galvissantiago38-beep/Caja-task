@@ -44,12 +44,12 @@ export default function PasswordInput({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder}
-          className="w-full px-3 py-2 pr-20 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 font-mono"
+          className="w-full px-3 py-2.5 pr-20 border border-stone-300 bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 font-mono transition-colors"
         />
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-xs text-slate-500 hover:text-slate-700 px-2 py-1 rounded hover:bg-slate-100"
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 px-2 py-1 transition-colors"
         >
           {visible ? 'Ocultar' : 'Ver'}
         </button>
@@ -63,9 +63,9 @@ export default function PasswordInput({
             setValue(pwd)
             setVisible(true)
           }}
-          className="text-sm text-rose-600 hover:text-rose-800 font-medium"
+          className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
         >
-          🎲 Generar contraseña segura
+          Generar contraseña segura
         </button>
       )}
     </div>

@@ -33,43 +33,41 @@ type Frecuencia = 'diaria' | 'unica' | 'lapso'
 const FRECUENCIAS: {
   value: Frecuencia
   label: string
-  icon: string
   desc: string
-  color: string
 }[] = [
   {
     value: 'diaria',
     label: 'Diaria',
-    icon: '📅',
     desc: 'Se repite todos los días con una hora límite.',
-    color: 'border-blue-500 bg-blue-50',
   },
   {
     value: 'unica',
     label: 'Definida',
-    icon: '🎯',
-    desc: 'Una sola vez, en una fecha y hora específicas.',
-    color: 'border-purple-500 bg-purple-50',
+    desc: 'Una sola vez, fecha y hora específicas.',
   },
   {
     value: 'lapso',
     label: 'Por lapso',
-    icon: '🗓️',
-    desc: 'Ventana de fechas: se abre un día y debe cerrarse antes de otro.',
-    color: 'border-emerald-500 bg-emerald-50',
+    desc: 'Ventana entre apertura y cierre.',
   },
 ]
 
 const PRIORIDADES = [
-  { value: 'alta', label: 'Alta', color: 'bg-red-100 text-red-700 border-red-300' },
-  { value: 'media', label: 'Media', color: 'bg-amber-100 text-amber-700 border-amber-300' },
-  { value: 'baja', label: 'Baja', color: 'bg-green-100 text-green-700 border-green-300' },
+  { value: 'alta', label: 'Alta' },
+  { value: 'media', label: 'Media' },
+  { value: 'baja', label: 'Baja' },
 ]
 
 function normalizeFrecuencia(raw: string | undefined): Frecuencia {
   if (raw === 'diaria' || raw === 'unica' || raw === 'lapso') return raw
   return 'diaria'
 }
+
+const inputCls =
+  'w-full px-3 py-2.5 border border-stone-300 bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 transition-colors'
+
+const labelCls =
+  'block text-[11px] uppercase tracking-[0.18em] text-stone-700 mb-2'
 
 export default function TaskForm({
   cajeros,
@@ -85,21 +83,17 @@ export default function TaskForm({
   const sinCajeros = cajeros.length === 0
 
   return (
-    <form action={action} className="space-y-6">
+    <form action={action} className="space-y-10">
       {sinCajeros && (
-        <div className="bg-amber-50 border border-amber-300 text-amber-800 rounded-lg p-4 text-sm">
-          ⚠️ No hay cajeros registrados todavía. Necesitas al menos un cajero
-          para asignarle tareas.
+        <div className="border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-700">
+          No hay cajeros registrados aún. Necesitas al menos uno para asignarle
+          tareas.
         </div>
       )}
 
-      {/* Título */}
       <div>
-        <label
-          htmlFor="titulo"
-          className="block text-sm font-medium text-slate-700 mb-1"
-        >
-          Título <span className="text-red-500">*</span>
+        <label htmlFor="titulo" className={labelCls}>
+          Título
         </label>
         <input
           id="titulo"
@@ -108,16 +102,12 @@ export default function TaskForm({
           required
           defaultValue={task?.titulo ?? ''}
           placeholder="Ej. Cuadre de caja"
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className={inputCls}
         />
       </div>
 
-      {/* Descripción */}
       <div>
-        <label
-          htmlFor="descripcion"
-          className="block text-sm font-medium text-slate-700 mb-1"
-        >
+        <label htmlFor="descripcion" className={labelCls}>
           Descripción
         </label>
         <textarea
@@ -125,26 +115,23 @@ export default function TaskForm({
           name="descripcion"
           rows={3}
           defaultValue={task?.descripcion ?? ''}
-          placeholder="Detalles opcionales de la tarea"
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+          placeholder="Detalles opcionales"
+          className={inputCls}
         />
       </div>
 
-      {/* Tipo de tarea */}
       <div>
-        <span className="block text-sm font-medium text-slate-700 mb-2">
-          Tipo de tarea <span className="text-red-500">*</span>
-        </span>
-        <div className="grid gap-2 sm:grid-cols-3">
+        <span className={labelCls}>Tipo</span>
+        <div className="grid gap-px bg-stone-200 sm:grid-cols-3">
           {FRECUENCIAS.map((f) => {
             const active = frecuencia === f.value
             return (
               <label
                 key={f.value}
-                className={`cursor-pointer border-2 rounded-xl p-3 transition-all ${
+                className={`cursor-pointer p-5 transition-colors ${
                   active
-                    ? f.color
-                    : 'border-slate-200 bg-white hover:border-slate-300'
+                    ? 'bg-stone-900 text-white'
+                    : 'bg-white text-stone-900 hover:bg-stone-50'
                 }`}
               >
                 <input
@@ -155,32 +142,31 @@ export default function TaskForm({
                   onChange={() => setFrecuencia(f.value)}
                   className="sr-only"
                 />
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-xl" aria-hidden>
-                    {f.icon}
-                  </span>
-                  <span className="font-semibold text-slate-900">{f.label}</span>
-                </div>
-                <p className="text-xs text-slate-600 leading-snug">{f.desc}</p>
+                <span className="block text-[11px] uppercase tracking-[0.2em] mb-2">
+                  {f.label}
+                </span>
+                <span
+                  className={`block text-xs leading-relaxed ${
+                    active ? 'text-stone-200' : 'text-stone-500'
+                  }`}
+                >
+                  {f.desc}
+                </span>
               </label>
             )
           })}
         </div>
       </div>
 
-      {/* Plazo (cambia según el tipo) */}
-      <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-4">
-        <h3 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
-          <span>⏰</span> Plazo de ejecución
-        </h3>
+      <div className="border-t border-stone-200 pt-8">
+        <span className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-5 block">
+          Plazo de ejecución
+        </span>
 
         {frecuencia === 'diaria' && (
           <div>
-            <label
-              htmlFor="hora_limite"
-              className="block text-sm font-medium text-slate-700 mb-1"
-            >
-              Hora límite cada día <span className="text-red-500">*</span>
+            <label htmlFor="hora_limite" className={labelCls}>
+              Hora límite cada día
             </label>
             <input
               id="hora_limite"
@@ -188,22 +174,19 @@ export default function TaskForm({
               type="time"
               required
               defaultValue={task?.hora_limite?.slice(0, 5) ?? '17:00'}
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className={inputCls}
             />
-            <p className="text-xs text-slate-500 mt-1">
-              El cajero recibirá un aviso 2 horas antes de esta hora.
+            <p className="text-xs text-stone-500 mt-2">
+              El cajero recibirá un aviso antes de esta hora.
             </p>
           </div>
         )}
 
         {frecuencia === 'unica' && (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             <div>
-              <label
-                htmlFor="fecha_limite"
-                className="block text-sm font-medium text-slate-700 mb-1"
-              >
-                Fecha <span className="text-red-500">*</span>
+              <label htmlFor="fecha_limite" className={labelCls}>
+                Fecha
               </label>
               <input
                 id="fecha_limite"
@@ -211,15 +194,12 @@ export default function TaskForm({
                 type="date"
                 required
                 defaultValue={task?.fecha_limite ?? ''}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputCls}
               />
             </div>
             <div>
-              <label
-                htmlFor="hora_limite_unica"
-                className="block text-sm font-medium text-slate-700 mb-1"
-              >
-                Hora <span className="text-red-500">*</span>
+              <label htmlFor="hora_limite_unica" className={labelCls}>
+                Hora
               </label>
               <input
                 id="hora_limite_unica"
@@ -227,23 +207,20 @@ export default function TaskForm({
                 type="time"
                 required
                 defaultValue={task?.hora_limite?.slice(0, 5) ?? '17:00'}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputCls}
               />
             </div>
-            <p className="text-xs text-slate-500 sm:col-span-2">
-              El cajero recibirá un aviso 24 horas antes.
+            <p className="text-xs text-stone-500 sm:col-span-2">
+              Aviso 24 horas antes.
             </p>
           </div>
         )}
 
         {frecuencia === 'lapso' && (
-          <div className="grid gap-3 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             <div>
-              <label
-                htmlFor="apertura"
-                className="block text-sm font-medium text-slate-700 mb-1"
-              >
-                Apertura (se habilita) <span className="text-red-500">*</span>
+              <label htmlFor="apertura" className={labelCls}>
+                Apertura
               </label>
               <input
                 id="apertura"
@@ -251,15 +228,12 @@ export default function TaskForm({
                 type="date"
                 required
                 defaultValue={task?.apertura ?? ''}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputCls}
               />
             </div>
             <div>
-              <label
-                htmlFor="fecha_limite_lapso"
-                className="block text-sm font-medium text-slate-700 mb-1"
-              >
-                Cierre (fecha límite) <span className="text-red-500">*</span>
+              <label htmlFor="fecha_limite_lapso" className={labelCls}>
+                Cierre
               </label>
               <input
                 id="fecha_limite_lapso"
@@ -267,38 +241,35 @@ export default function TaskForm({
                 type="date"
                 required
                 defaultValue={task?.fecha_limite ?? ''}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={inputCls}
               />
             </div>
-            <p className="text-xs text-slate-500 sm:col-span-2">
-              Avisos: 1 día antes de la apertura y 1 día antes del cierre.
+            <p className="text-xs text-stone-500 sm:col-span-2">
+              Aviso 1 día antes de la apertura y 1 día antes del cierre.
             </p>
           </div>
         )}
       </div>
 
-      {/* Prioridad */}
       <div>
-        <span className="block text-sm font-medium text-slate-700 mb-2">
-          Prioridad
-        </span>
-        <div className="flex gap-3 flex-wrap">
+        <span className={labelCls}>Prioridad</span>
+        <div className="flex gap-3">
           {PRIORIDADES.map((p) => {
-            const seleccionada = prioridad === p.value
+            const active = prioridad === p.value
             return (
               <label
                 key={p.value}
-                className={`cursor-pointer border-2 rounded-lg px-4 py-2 text-sm font-medium transition-colors ${
-                  seleccionada
-                    ? p.color
-                    : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400'
+                className={`cursor-pointer border px-5 py-2 text-[11px] uppercase tracking-[0.2em] transition-colors ${
+                  active
+                    ? 'border-stone-900 bg-stone-900 text-white'
+                    : 'border-stone-300 text-stone-600 hover:border-stone-900 hover:text-stone-900'
                 }`}
               >
                 <input
                   type="radio"
                   name="prioridad"
                   value={p.value}
-                  checked={seleccionada}
+                  checked={active}
                   onChange={(e) => setPrioridad(e.target.value)}
                   className="sr-only"
                 />
@@ -309,13 +280,9 @@ export default function TaskForm({
         </div>
       </div>
 
-      {/* Asignado a */}
       <div>
-        <label
-          htmlFor="asignado_a"
-          className="block text-sm font-medium text-slate-700 mb-1"
-        >
-          Asignado a <span className="text-red-500">*</span>
+        <label htmlFor="asignado_a" className={labelCls}>
+          Asignado a
         </label>
         <select
           id="asignado_a"
@@ -323,7 +290,7 @@ export default function TaskForm({
           required
           defaultValue={task?.asignado_a ?? ''}
           disabled={sinCajeros}
-          className="w-full px-3 py-2 border border-slate-300 rounded-lg bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:bg-slate-100"
+          className={`${inputCls} disabled:bg-stone-50 disabled:text-stone-400`}
         >
           <option value="" disabled>
             Selecciona un cajero
@@ -336,18 +303,17 @@ export default function TaskForm({
         </select>
       </div>
 
-      {/* Botones */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+      <div className="flex items-center justify-end gap-4 pt-6 border-t border-stone-200">
         <Link
           href="/tasks"
-          className="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg font-medium hover:bg-slate-200 transition-colors"
+          className="text-[11px] uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 transition-colors"
         >
           Cancelar
         </Link>
         <button
           type="submit"
           disabled={sinCajeros}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors disabled:bg-slate-300 disabled:cursor-not-allowed"
+          className="bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {submitLabel}
         </button>

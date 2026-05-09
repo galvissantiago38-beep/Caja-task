@@ -3,21 +3,27 @@ type RoleBadgeProps = {
   size?: 'sm' | 'md'
 }
 
-const STYLES: Record<string, { class: string; label: string }> = {
-  admin: { class: 'bg-rose-100 text-rose-700', label: '🛡️ Admin' },
-  lider: { class: 'bg-purple-100 text-purple-700', label: '👑 Líder' },
-  cajero: { class: 'bg-blue-100 text-blue-700', label: '🧑‍💼 Cajero' },
+const LABELS: Record<string, string> = {
+  admin: 'Admin',
+  lider: 'Líder',
+  cajero: 'Cajero',
+}
+
+const STYLES: Record<string, string> = {
+  admin: 'border-stone-900 text-stone-900',
+  lider: 'border-stone-500 text-stone-700',
+  cajero: 'border-stone-300 text-stone-500',
 }
 
 export default function RoleBadge({ rol, size = 'md' }: RoleBadgeProps) {
-  const style = STYLES[rol ?? ''] ?? {
-    class: 'bg-slate-100 text-slate-600',
-    label: rol ?? '—',
-  }
-  const sizeClass = size === 'sm' ? 'px-2 py-0.5 text-xs' : 'px-3 py-1 text-sm'
+  const label = LABELS[rol ?? ''] ?? rol ?? '—'
+  const style = STYLES[rol ?? ''] ?? 'border-stone-200 text-stone-500'
+  const sizeCls = size === 'sm' ? 'text-[9px] px-1.5 py-0.5' : 'text-[10px] px-2 py-0.5'
   return (
-    <span className={`rounded-full font-medium ${sizeClass} ${style.class}`}>
-      {style.label}
+    <span
+      className={`inline-block uppercase tracking-[0.2em] border ${style} ${sizeCls}`}
+    >
+      {label}
     </span>
   )
 }

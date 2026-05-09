@@ -30,61 +30,61 @@ export default async function AdminHome() {
   const cajeros = users?.filter((u) => u.rol === 'cajero').length ?? 0
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-14">
       <section>
-        <p className="text-sm text-slate-500 mb-1">Bienvenido de vuelta,</p>
-        <h2 className="text-3xl font-bold text-slate-900">
-          {profile?.nombre ?? 'Admin'} 👋
-        </h2>
-        <p className="text-slate-600 mt-1">
+        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+          Bienvenido
+        </p>
+        <h1 className="font-serif text-5xl text-stone-900 leading-tight">
+          {profile?.nombre ?? 'Admin'}
+        </h1>
+        <p className="text-sm text-stone-600 mt-3">
           Resumen del equipo y accesos rápidos.
         </p>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="Usuarios totales" value={total} accent="rose" />
-        <StatCard label="Admins" value={admins} accent="rose" muted />
-        <StatCard label="Líderes" value={lideres} accent="purple" muted />
-        <StatCard label="Cajeros" value={cajeros} accent="blue" muted />
-      </section>
-
-      <section className="grid gap-4 sm:grid-cols-2">
-        <StatCard
-          label="Tareas activas"
-          value={tareasActivas ?? 0}
-          accent="emerald"
-        />
-        <StatCard
-          label="Tareas archivadas"
-          value={tareasInactivas ?? 0}
-          accent="slate"
-          muted
-        />
+      <section>
+        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-5">
+          Equipo
+        </p>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-stone-200">
+          <Stat label="Total" value={total} />
+          <Stat label="Admins" value={admins} />
+          <Stat label="Líderes" value={lideres} />
+          <Stat label="Cajeros" value={cajeros} />
+        </div>
       </section>
 
       <section>
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-500 mb-3">
+        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-5">
+          Tareas
+        </p>
+        <div className="grid grid-cols-2 gap-px bg-stone-200">
+          <Stat label="Activas" value={tareasActivas ?? 0} />
+          <Stat label="Archivadas" value={tareasInactivas ?? 0} muted />
+        </div>
+      </section>
+
+      <section className="border-t border-stone-200 pt-12">
+        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-5">
           Accesos rápidos
-        </h3>
-        <div className="grid gap-3 sm:grid-cols-3">
+        </p>
+        <div className="grid gap-px bg-stone-200 sm:grid-cols-3">
           <ActionCard
             href="/admin/users/new"
             title="Nuevo usuario"
             description="Crear cuenta con rol asignado"
-            icon="+"
             primary
           />
           <ActionCard
             href="/admin/users"
             title="Ver usuarios"
             description="Lista, edición y permisos"
-            icon="👥"
           />
           <ActionCard
             href="/tasks"
             title="Tareas del equipo"
             description="Ver y administrar tareas"
-            icon="📋"
           />
         </div>
       </section>
@@ -92,36 +92,27 @@ export default async function AdminHome() {
   )
 }
 
-const ACCENT_BG: Record<string, string> = {
-  rose: 'bg-rose-600',
-  purple: 'bg-purple-600',
-  blue: 'bg-blue-600',
-  emerald: 'bg-emerald-600',
-  slate: 'bg-slate-500',
-}
-
-function StatCard({
+function Stat({
   label,
   value,
-  accent,
   muted = false,
 }: {
   label: string
   value: number
-  accent: keyof typeof ACCENT_BG
   muted?: boolean
 }) {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-5">
-      <div className="flex items-center gap-2 mb-3">
-        <span
-          className={`w-2 h-2 rounded-full ${
-            muted ? 'bg-slate-300' : ACCENT_BG[accent]
-          }`}
-        />
-        <span className="text-sm text-slate-600">{label}</span>
-      </div>
-      <p className="text-3xl font-bold text-slate-900">{value}</p>
+    <div className="bg-white p-6">
+      <p className="text-[11px] uppercase tracking-[0.2em] text-stone-500 mb-3">
+        {label}
+      </p>
+      <p
+        className={`font-serif text-4xl ${
+          muted ? 'text-stone-400' : 'text-stone-900'
+        }`}
+      >
+        {value}
+      </p>
     </div>
   )
 }
@@ -130,36 +121,34 @@ function ActionCard({
   href,
   title,
   description,
-  icon,
   primary = false,
 }: {
   href: string
   title: string
   description: string
-  icon: string
   primary?: boolean
 }) {
   return (
     <Link
       href={href}
-      className={`group rounded-2xl border p-5 transition-all hover:shadow-md ${
+      className={`block p-7 group transition-colors ${
         primary
-          ? 'bg-rose-600 text-white border-rose-600 hover:bg-rose-700'
-          : 'bg-white text-slate-900 border-slate-200 hover:border-slate-300'
+          ? 'bg-stone-900 text-white hover:bg-stone-700'
+          : 'bg-white text-stone-900 hover:bg-stone-50'
       }`}
     >
-      <div
-        className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg mb-3 ${
-          primary
-            ? 'bg-white/20 text-white'
-            : 'bg-slate-100 text-slate-700 group-hover:bg-slate-200'
+      <p
+        className={`text-[11px] uppercase tracking-[0.2em] mb-3 ${
+          primary ? 'text-stone-300' : 'text-stone-500'
         }`}
       >
-        {icon}
-      </div>
-      <p className="font-semibold">{title}</p>
+        {primary ? '＋ Crear' : 'Acceso'}
+      </p>
+      <p className="font-serif text-xl mb-2">{title}</p>
       <p
-        className={`text-sm mt-0.5 ${primary ? 'text-rose-100' : 'text-slate-500'}`}
+        className={`text-xs ${
+          primary ? 'text-stone-300' : 'text-stone-500'
+        }`}
       >
         {description}
       </p>

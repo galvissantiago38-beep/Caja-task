@@ -11,44 +11,37 @@ export default async function AdminLayout({
   const { profile } = await requireAdmin()
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-white border-b border-slate-200">
-        <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 bg-rose-600 text-white rounded-lg flex items-center justify-center font-bold">
-              🛡️
-            </div>
-            <div>
-              <p className="text-xs uppercase tracking-wide text-slate-500">
-                Caja Tasks
-              </p>
-              <h1 className="text-lg font-bold text-slate-900 leading-none">
-                Panel de admin
-              </h1>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-4">
+    <div className="min-h-screen bg-white">
+      <header className="border-b border-stone-200">
+        <div className="max-w-6xl mx-auto px-8 py-6 flex items-center justify-between">
+          <div className="flex items-center gap-6">
             <Link
               href="/dashboard"
-              className="text-sm text-slate-600 hover:text-slate-900"
+              className="font-serif text-xl tracking-wide"
             >
-              ← Volver al sitio
+              CAJA TASKS
             </Link>
-            <div className="hidden sm:flex items-center gap-2 text-sm text-slate-600">
-              <span className="w-8 h-8 bg-slate-200 rounded-full flex items-center justify-center font-medium text-slate-700">
-                {(profile?.nombre ?? '?').charAt(0).toUpperCase()}
-              </span>
-              <span className="font-medium text-slate-900">
-                {profile?.nombre ?? 'Admin'}
-              </span>
-            </div>
+            <span className="text-[10px] uppercase tracking-[0.25em] text-stone-500 border border-stone-300 px-2 py-0.5">
+              Admin
+            </span>
+          </div>
+
+          <div className="flex items-center gap-8">
+            <Link
+              href="/dashboard"
+              className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 transition-colors"
+            >
+              ← Sitio
+            </Link>
+            <span className="text-[11px] uppercase tracking-[0.18em] text-stone-500">
+              {profile?.nombre ?? 'Admin'}
+            </span>
             <form>
               <button
                 formAction={logout}
-                className="text-sm bg-slate-100 text-slate-700 px-3 py-1.5 rounded-lg font-medium hover:bg-slate-200 transition-colors"
+                className="text-[11px] uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 transition-colors"
               >
-                Cerrar sesión
+                Salir
               </button>
             </form>
           </div>
@@ -57,7 +50,7 @@ export default async function AdminLayout({
 
       <AdminNav />
 
-      <main className="max-w-6xl mx-auto px-6 py-8">{children}</main>
+      <main className="max-w-6xl mx-auto px-8 py-14">{children}</main>
     </div>
   )
 }

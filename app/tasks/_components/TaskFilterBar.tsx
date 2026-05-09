@@ -52,38 +52,33 @@ export default function TaskFilterBar({ cajeros }: { cajeros: Cajero[] }) {
   }
 
   return (
-    <div className="flex flex-col lg:flex-row gap-3 lg:items-center">
+    <div className="flex flex-col lg:flex-row gap-4 lg:items-center pb-4">
       <form
         key={currentQ}
         onSubmit={onSearch}
-        className="flex-1 lg:max-w-sm"
+        className="flex-1 lg:max-w-xs"
       >
-        <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-            🔍
-          </span>
-          <input
-            name="q"
-            type="search"
-            defaultValue={currentQ}
-            placeholder="Buscar por título"
-            className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white"
-          />
-        </div>
+        <input
+          name="q"
+          type="search"
+          defaultValue={currentQ}
+          placeholder="Buscar por título"
+          className="w-full px-0 py-2 border-0 border-b border-stone-300 bg-transparent text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 text-sm transition-colors"
+        />
       </form>
 
-      <div className="flex flex-wrap gap-2 items-center">
-        <div className="flex gap-1 bg-white rounded-lg border border-slate-200 p-1">
+      <div className="flex flex-wrap gap-6 items-center">
+        <div className="flex gap-1">
           {PRIORIDADES.map((p) => {
             const active = currentPrio === p.value
             return (
               <Link
                 key={p.value}
                 href={buildHref({ prioridad: p.value })}
-                className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+                className={`px-3 py-1.5 text-[11px] uppercase tracking-[0.18em] transition-colors ${
                   active
-                    ? 'bg-blue-600 text-white'
-                    : 'text-slate-600 hover:bg-slate-100'
+                    ? 'text-stone-900 underline underline-offset-4 decoration-stone-900'
+                    : 'text-stone-500 hover:text-stone-900'
                 }`}
               >
                 {p.label}
@@ -95,7 +90,7 @@ export default function TaskFilterBar({ cajeros }: { cajeros: Cajero[] }) {
         <select
           value={currentAsig}
           onChange={onAsignadoChange}
-          className="px-3 py-2 border border-slate-300 rounded-lg bg-white text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="px-3 py-2 border border-stone-300 bg-white text-sm text-stone-900 focus:outline-none focus:border-stone-900 transition-colors"
         >
           <option value="all">Todos los cajeros</option>
           {cajeros.map((c) => (

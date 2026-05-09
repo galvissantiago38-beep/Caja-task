@@ -3,20 +3,22 @@ import { signup } from '../auth/actions'
 
 export default function SignupPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8">
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">
-          Crear cuenta
-        </h1>
-        <p className="text-slate-600 mb-6">
-          Regístrate para acceder a Caja Tasks
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-white px-6 py-16">
+      <div className="w-full max-w-sm">
+        <div className="text-center mb-14">
+          <h1 className="font-serif text-4xl text-stone-900 tracking-wide mb-3">
+            CAJA TASKS
+          </h1>
+          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500">
+            Crear cuenta
+          </p>
+        </div>
 
-        <form className="space-y-4">
+        <form className="space-y-7">
           <div>
             <label
               htmlFor="full_name"
-              className="block text-sm font-medium text-slate-700 mb-1"
+              className="block text-[11px] uppercase tracking-[0.18em] text-stone-700 mb-2"
             >
               Nombre completo
             </label>
@@ -26,14 +28,14 @@ export default function SignupPage() {
               type="text"
               required
               placeholder="Juan Pérez"
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-0 py-2 border-0 border-b border-stone-300 bg-transparent text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 transition-colors"
             />
           </div>
 
           <div>
             <label
               htmlFor="email"
-              className="block text-sm font-medium text-slate-700 mb-1"
+              className="block text-[11px] uppercase tracking-[0.18em] text-stone-700 mb-2"
             >
               Correo electrónico
             </label>
@@ -43,14 +45,14 @@ export default function SignupPage() {
               type="email"
               required
               placeholder="ejemplo@correo.com"
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-0 py-2 border-0 border-b border-stone-300 bg-transparent text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 transition-colors"
             />
           </div>
 
           <div>
             <label
               htmlFor="password"
-              className="block text-sm font-medium text-slate-700 mb-1"
+              className="block text-[11px] uppercase tracking-[0.18em] text-stone-700 mb-2"
             >
               Contraseña
             </label>
@@ -61,23 +63,23 @@ export default function SignupPage() {
               required
               minLength={6}
               placeholder="Mínimo 6 caracteres"
-              className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full px-0 py-2 border-0 border-b border-stone-300 bg-transparent text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 transition-colors"
             />
           </div>
 
           <button
             formAction={signup}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+            className="w-full bg-stone-900 text-white py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors mt-4"
           >
             Registrarme
           </button>
         </form>
 
-        <p className="mt-6 text-center text-sm text-slate-600">
+        <p className="mt-10 text-center text-sm text-stone-500">
           ¿Ya tienes cuenta?{' '}
           <Link
             href="/login"
-            className="text-blue-600 hover:underline font-medium"
+            className="text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
           >
             Inicia sesión
           </Link>

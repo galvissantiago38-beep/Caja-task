@@ -42,37 +42,32 @@ export default function UserFilterBar() {
   }
 
   return (
-    <div className="flex flex-col sm:flex-row gap-3 sm:items-center sm:justify-between">
+    <div className="flex flex-col sm:flex-row gap-6 sm:items-center sm:justify-between pb-4">
       <form
         key={currentQ}
         onSubmit={onSubmit}
-        className="flex-1 sm:max-w-md"
+        className="flex-1 sm:max-w-xs"
       >
-        <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
-            🔍
-          </span>
-          <input
-            name="q"
-            type="search"
-            defaultValue={currentQ}
-            placeholder="Buscar por nombre o correo"
-            className="w-full pl-9 pr-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white"
-          />
-        </div>
+        <input
+          name="q"
+          type="search"
+          defaultValue={currentQ}
+          placeholder="Buscar por nombre o correo"
+          className="w-full px-0 py-2 border-0 border-b border-stone-300 bg-transparent text-stone-900 placeholder:text-stone-400 text-sm focus:outline-none focus:border-stone-900 transition-colors"
+        />
       </form>
 
-      <div className="flex gap-1 bg-white rounded-lg border border-slate-200 p-1 self-start">
+      <div className="flex gap-1">
         {FILTERS.map((f) => {
           const active = currentRol === f.value
           return (
             <Link
               key={f.value}
               href={buildHref({ rol: f.value })}
-              className={`px-3 py-1.5 text-sm font-medium rounded-md transition-colors ${
+              className={`px-3 py-1.5 text-[11px] uppercase tracking-[0.18em] transition-colors ${
                 active
-                  ? 'bg-rose-600 text-white'
-                  : 'text-slate-600 hover:bg-slate-100'
+                  ? 'text-stone-900 underline underline-offset-4 decoration-stone-900'
+                  : 'text-stone-500 hover:text-stone-900'
               }`}
             >
               {f.label}

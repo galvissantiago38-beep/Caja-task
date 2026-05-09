@@ -5,17 +5,24 @@ type DeleteTaskButtonProps = {
   titulo: string
 }
 
-export default function DeleteTaskButton({ action, titulo }: DeleteTaskButtonProps) {
+export default function DeleteTaskButton({
+  action,
+  titulo,
+}: DeleteTaskButtonProps) {
   return (
     <form action={action}>
       <button
         type="submit"
         onClick={(e) => {
-          if (!confirm(`¿Eliminar la tarea "${titulo}"? Esta acción la desactivará.`)) {
+          if (
+            !confirm(
+              `¿Eliminar la tarea "${titulo}"? Esta acción la desactivará.`
+            )
+          ) {
             e.preventDefault()
           }
         }}
-        className="text-red-600 hover:text-red-800 text-sm font-medium"
+        className="text-[11px] uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 underline underline-offset-4 decoration-stone-200 hover:decoration-stone-900 transition-colors"
       >
         Eliminar
       </button>

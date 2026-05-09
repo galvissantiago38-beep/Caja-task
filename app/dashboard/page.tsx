@@ -14,6 +14,12 @@ type SummaryCounts = {
   total: number
 }
 
+const ROL_LABEL: Record<string, string> = {
+  admin: 'Administrador',
+  lider: 'Líder',
+  cajero: 'Cajero',
+}
+
 export default async function DashboardPage() {
   const supabase = await createClient()
 
@@ -29,133 +35,118 @@ export default async function DashboardPage() {
     .single()
 
   const esGestor = profile?.rol === 'lider' || profile?.rol === 'admin'
-
   const counts = await fetchSummary(supabase, user.id, esGestor)
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
-      <div className="max-w-4xl mx-auto">
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">
-                ¡Hola, {profile?.nombre || 'Usuario'}! 👋
-              </h1>
-              <p className="text-slate-600 mt-1">Bienvenido a Caja Tasks</p>
-            </div>
-
+    <div className="min-h-screen bg-white">
+      <header className="border-b border-stone-200">
+        <div className="max-w-5xl mx-auto px-8 py-6 flex items-center justify-between">
+          <Link href="/dashboard" className="font-serif text-xl tracking-wide">
+            CAJA TASKS
+          </Link>
+          <nav className="flex items-center gap-8">
+            <Link
+              href="/profile"
+              className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 transition-colors"
+            >
+              Mi perfil
+            </Link>
             <form>
               <button
                 formAction={logout}
-                className="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg font-medium hover:bg-slate-200 transition-colors"
+                className="text-[11px] uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 transition-colors"
               >
                 Cerrar sesión
               </button>
             </form>
+          </nav>
+        </div>
+      </header>
+
+      <main className="max-w-5xl mx-auto px-8 py-14">
+        <div className="mb-14">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+            Bienvenido
+          </p>
+          <h1 className="font-serif text-5xl text-stone-900 leading-tight">
+            {profile?.nombre || 'Usuario'}
+          </h1>
+          <div className="mt-3 flex items-center gap-3 text-sm text-stone-500">
+            <span>{user.email}</span>
+            <span className="w-1 h-1 bg-stone-300 rounded-full" />
+            <span className="uppercase tracking-widest text-[11px]">
+              {ROL_LABEL[profile?.rol ?? ''] ?? 'Usuario'}
+            </span>
           </div>
         </div>
 
         <SummaryCard counts={counts} esGestor={esGestor} />
 
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-slate-900">
-              Tu información
-            </h2>
-            <Link
-              href="/profile"
-              className="text-sm text-blue-600 hover:text-blue-800 font-medium"
-            >
-              Editar perfil →
-            </Link>
-          </div>
-
-          <div className="space-y-3">
-            <div className="flex items-center gap-3">
-              <span className="text-slate-500 w-32">Nombre:</span>
-              <span className="text-slate-900 font-medium">
-                {profile?.nombre || 'Sin nombre'}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <span className="text-slate-500 w-32">Correo:</span>
-              <span className="text-slate-900 font-medium">{user.email}</span>
-            </div>
-
-            <div className="flex items-center gap-3">
-              <span className="text-slate-500 w-32">Rol:</span>
-              <span
-                className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  profile?.rol === 'admin'
-                    ? 'bg-rose-100 text-rose-700'
-                    : profile?.rol === 'lider'
-                    ? 'bg-purple-100 text-purple-700'
-                    : 'bg-blue-100 text-blue-700'
-                }`}
-              >
-                {profile?.rol === 'admin'
-                  ? '🛡️ Admin'
-                  : profile?.rol === 'lider'
-                  ? '👑 Líder'
-                  : '🧑‍💼 Cajero'}
-              </span>
-            </div>
-          </div>
-        </div>
-
         {profile?.rol === 'admin' && (
-          <div className="bg-gradient-to-br from-rose-600 to-rose-700 text-white rounded-2xl shadow-lg p-6 mb-6">
-            <div className="flex items-start justify-between gap-4 flex-wrap">
-              <div>
-                <h2 className="text-lg font-semibold mb-1">
-                  🛡️ Panel de administración
+          <section className="border-t border-stone-200 pt-14 mt-14">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+              Administración
+            </p>
+            <div className="flex items-end justify-between flex-wrap gap-6">
+              <div className="max-w-md">
+                <h2 className="font-serif text-2xl text-stone-900 mb-2">
+                  Panel del equipo
                 </h2>
-                <p className="text-rose-100">
-                  Crea usuarios, asigna roles y gestiona el equipo.
+                <p className="text-sm text-stone-600 leading-relaxed">
+                  Crea usuarios, asigna roles y supervisa la actividad del
+                  equipo.
                 </p>
               </div>
               <Link
                 href="/admin"
-                className="bg-white text-rose-700 px-4 py-2 rounded-lg font-medium hover:bg-rose-50 transition-colors"
+                className="bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
               >
                 Ir al panel
               </Link>
             </div>
-          </div>
+          </section>
         )}
 
-        <div className="bg-white rounded-2xl shadow-lg p-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Tareas</h2>
-          <p className="text-slate-600 mb-4">
-            {esGestor
-              ? 'Gestiona las tareas del equipo: crea nuevas, edita o desactiva las existentes.'
-              : 'Consulta y completa las tareas que tienes asignadas.'}
+        <section className="border-t border-stone-200 pt-14 mt-14">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+            Tareas
           </p>
-          <div className="flex flex-wrap items-center gap-3">
-            <Link
-              href="/tasks"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-            >
-              {esGestor ? 'Ir a tareas' : 'Ver mis pendientes'}
-            </Link>
-            <Link
-              href="/tasks/historico"
-              className="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg font-medium hover:bg-slate-200 transition-colors"
-            >
-              📜 Histórico
-            </Link>
-            {esGestor && (
+          <div className="flex items-end justify-between flex-wrap gap-6">
+            <div className="max-w-md">
+              <h2 className="font-serif text-2xl text-stone-900 mb-2">
+                {esGestor ? 'Gestión de tareas' : 'Tus tareas'}
+              </h2>
+              <p className="text-sm text-stone-600 leading-relaxed">
+                {esGestor
+                  ? 'Crea, asigna y haz seguimiento de las tareas del equipo.'
+                  : 'Consulta y completa las tareas que tienes asignadas.'}
+              </p>
+            </div>
+            <div className="flex flex-wrap gap-3">
               <Link
-                href="/tasks/new"
-                className="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg font-medium hover:bg-slate-200 transition-colors"
+                href="/tasks"
+                className="bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
               >
-                + Nueva tarea
+                {esGestor ? 'Ir a tareas' : 'Ver pendientes'}
               </Link>
-            )}
+              <Link
+                href="/tasks/historico"
+                className="border border-stone-900 text-stone-900 px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-50 transition-colors"
+              >
+                Histórico
+              </Link>
+              {esGestor && (
+                <Link
+                  href="/tasks/new"
+                  className="border border-stone-300 text-stone-700 px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:border-stone-900 hover:text-stone-900 transition-colors"
+                >
+                  Nueva tarea
+                </Link>
+              )}
+            </div>
           </div>
-        </div>
-      </div>
+        </section>
+      </main>
     </div>
   )
 }
@@ -221,86 +212,68 @@ function SummaryCard({
 }) {
   if (counts.total === 0) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-6 mb-6 text-center">
-        <p className="text-slate-600">
-          {esGestor
-            ? 'No hay tareas pendientes en el equipo. 🎉'
-            : 'No tienes tareas pendientes. ¡Bien hecho! 🎉'}
+      <section className="border-t border-stone-200 pt-14">
+        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+          Estado
         </p>
-      </div>
+        <h2 className="font-serif text-2xl text-stone-900 mb-2">
+          Sin pendientes
+        </h2>
+        <p className="text-sm text-stone-600">
+          {esGestor
+            ? 'No hay tareas pendientes en el equipo.'
+            : 'No tienes tareas pendientes. Buen trabajo.'}
+        </p>
+      </section>
     )
   }
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-semibold text-slate-900">
-          {esGestor ? 'Pendientes del equipo' : 'Mis pendientes'}
-        </h2>
+    <section className="border-t border-stone-200 pt-14">
+      <div className="flex items-end justify-between mb-6">
+        <div>
+          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+            Pendientes
+          </p>
+          <h2 className="font-serif text-2xl text-stone-900">
+            {esGestor ? 'Resumen del equipo' : 'Resumen personal'}
+          </h2>
+        </div>
         <Link
           href="/tasks"
-          className="text-sm text-blue-600 hover:text-blue-800 font-medium"
+          className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
         >
           Ver detalle →
         </Link>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-        <SummaryChip
-          label="Vencidas"
-          count={counts.vencidas}
-          color="red"
-          icon="🔴"
-        />
-        <SummaryChip label="Hoy" count={counts.hoy} color="amber" icon="⚡" />
-        <SummaryChip
-          label="Mañana"
-          count={counts.mañana}
-          color="blue"
-          icon="📅"
-        />
-        <SummaryChip
-          label="Después"
-          count={counts.futuras}
-          color="slate"
-          icon="⏳"
-        />
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-stone-200">
+        <SummaryCell label="Vencidas" count={counts.vencidas} highlight />
+        <SummaryCell label="Hoy" count={counts.hoy} highlight={counts.hoy > 0} />
+        <SummaryCell label="Mañana" count={counts.mañana} />
+        <SummaryCell label="Después" count={counts.futuras} />
       </div>
-    </div>
+    </section>
   )
 }
 
-const CHIP_STYLES: Record<string, string> = {
-  red: 'bg-red-50 border-red-200 text-red-900',
-  amber: 'bg-amber-50 border-amber-200 text-amber-900',
-  blue: 'bg-blue-50 border-blue-200 text-blue-900',
-  slate: 'bg-slate-50 border-slate-200 text-slate-700',
-}
-
-function SummaryChip({
+function SummaryCell({
   label,
   count,
-  color,
-  icon,
+  highlight = false,
 }: {
   label: string
   count: number
-  color: keyof typeof CHIP_STYLES
-  icon: string
+  highlight?: boolean
 }) {
   const muted = count === 0
   return (
     <div
-      className={`rounded-xl border-2 p-3 ${
-        muted
-          ? 'bg-slate-50 border-slate-200 text-slate-400'
-          : CHIP_STYLES[color]
+      className={`bg-white p-6 ${
+        muted ? 'text-stone-300' : highlight ? 'text-stone-900' : 'text-stone-700'
       }`}
     >
-      <div className="flex items-center gap-2 text-sm font-medium mb-1">
-        <span aria-hidden>{icon}</span>
-        <span>{label}</span>
-      </div>
-      <p className="text-2xl font-bold">{count}</p>
+      <p className="text-[11px] uppercase tracking-[0.2em] mb-3">{label}</p>
+      <p className="font-serif text-4xl">{count}</p>
     </div>
   )
 }

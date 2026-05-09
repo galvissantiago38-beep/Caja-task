@@ -8,38 +8,18 @@ import PlazoChip from './_components/PlazoChip'
 import CompletarBoton from './_components/CompletarBoton'
 import TaskFilterBar from './_components/TaskFilterBar'
 
-const PRIORIDAD_STYLES: Record<string, string> = {
-  alta: 'bg-red-100 text-red-700',
-  media: 'bg-amber-100 text-amber-700',
-  baja: 'bg-green-100 text-green-700',
+const PRIORIDAD_CLASSES: Record<string, string> = {
+  alta: 'text-stone-900 font-medium',
+  media: 'text-stone-600',
+  baja: 'text-stone-400',
 }
 
-const BUCKET_META: Record<Bucket, { label: string; color: string; icon: string }> = {
-  vencida: {
-    label: 'Vencidas',
-    color: 'border-red-300 bg-red-50',
-    icon: '🔴',
-  },
-  hoy: {
-    label: 'Hoy',
-    color: 'border-amber-300 bg-amber-50',
-    icon: '⚡',
-  },
-  mañana: {
-    label: 'Mañana',
-    color: 'border-blue-300 bg-blue-50',
-    icon: '📅',
-  },
-  pronto: {
-    label: 'Esta semana',
-    color: 'border-slate-300 bg-slate-50',
-    icon: '🗓️',
-  },
-  despues: {
-    label: 'Más adelante',
-    color: 'border-slate-200 bg-white',
-    icon: '⏳',
-  },
+const BUCKET_META: Record<Bucket, { label: string }> = {
+  vencida: { label: 'Vencidas' },
+  hoy: { label: 'Hoy' },
+  mañana: { label: 'Mañana' },
+  pronto: { label: 'Esta semana' },
+  despues: { label: 'Más adelante' },
 }
 
 type GestorTask = {
@@ -97,42 +77,48 @@ export default async function TasksPage({
   const esGestor = profile?.rol === 'lider' || profile?.rol === 'admin'
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
-      <div className="max-w-5xl mx-auto">
-        <header className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <div className="flex items-center justify-between flex-wrap gap-3">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">
-                {esGestor ? 'Tareas' : 'Mis tareas pendientes'}
-              </h1>
-              <p className="text-slate-600 mt-1">
-                {esGestor
-                  ? 'Gestiona las tareas del equipo: créalas, edítalas o desactívalas.'
-                  : 'Marca como hechas las tareas que vayas completando.'}
-              </p>
-            </div>
-            <div className="flex items-center gap-3">
-              <Link
-                href="/dashboard"
-                className="text-sm text-slate-600 hover:text-slate-900"
-              >
-                ← Dashboard
-              </Link>
-              {esGestor && (
-                <Link
-                  href="/tasks/new"
-                  className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-                >
-                  + Nueva tarea
-                </Link>
-              )}
-            </div>
+    <div className="min-h-screen bg-white">
+      <header className="border-b border-stone-200">
+        <div className="max-w-6xl mx-auto px-8 py-6 flex items-center justify-between">
+          <Link href="/dashboard" className="font-serif text-xl tracking-wide">
+            CAJA TASKS
+          </Link>
+          <Link
+            href="/dashboard"
+            className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 transition-colors"
+          >
+            ← Dashboard
+          </Link>
+        </div>
+      </header>
+
+      <main className="max-w-6xl mx-auto px-8 py-14">
+        <div className="flex items-end justify-between mb-12 flex-wrap gap-6">
+          <div>
+            <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+              Tareas
+            </p>
+            <h1 className="font-serif text-4xl text-stone-900 mb-2">
+              {esGestor ? 'Gestión' : 'Mis pendientes'}
+            </h1>
+            <p className="text-sm text-stone-600 max-w-md">
+              {esGestor
+                ? 'Crea, edita y desactiva las tareas del equipo.'
+                : 'Marca como hechas las tareas que vayas completando.'}
+            </p>
           </div>
-        </header>
+          {esGestor && (
+            <Link
+              href="/tasks/new"
+              className="bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
+            >
+              Nueva tarea
+            </Link>
+          )}
+        </div>
 
         {sp.error && (
-          <div className="mb-6 bg-rose-50 border border-rose-200 text-rose-800 rounded-lg px-4 py-3 text-sm">
-            ⚠️{' '}
+          <div className="mb-8 border border-stone-300 bg-stone-50 px-5 py-4 text-sm text-stone-800">
             {sp.error === 'no-autorizado'
               ? 'No tienes permiso para esta acción.'
               : sp.error === 'no-completada'
@@ -150,7 +136,7 @@ export default async function TasksPage({
         ) : (
           <CajeroView userId={user.id} />
         )}
-      </div>
+      </main>
     </div>
   )
 }
@@ -208,102 +194,100 @@ async function GestorView({
 
   if (lista.length === 0 && !tieneFiltros) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-        <div className="text-4xl mb-3">📋</div>
-        <h2 className="text-lg font-semibold text-slate-900 mb-1">
+      <div className="border-t border-stone-200 pt-20 text-center">
+        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+          Vacío
+        </p>
+        <h2 className="font-serif text-2xl text-stone-900 mb-3">
           Aún no hay tareas creadas
         </h2>
-        <p className="text-slate-500 mb-5">
+        <p className="text-sm text-stone-600 mb-8">
           Crea la primera tarea para tu equipo.
         </p>
         <Link
           href="/tasks/new"
-          className="inline-block bg-blue-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors"
+          className="inline-block bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
         >
-          Crear la primera tarea
+          Crear tarea
         </Link>
       </div>
     )
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <TaskFilterBar cajeros={cajerosLista} />
 
       {lista.length === 0 ? (
-        <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-          <div className="text-4xl mb-3">🔍</div>
-          <h3 className="text-lg font-semibold text-slate-900 mb-1">
+        <div className="border-t border-stone-200 pt-20 text-center">
+          <h3 className="font-serif text-2xl text-stone-900 mb-2">
             Sin resultados
           </h3>
-          <p className="text-slate-500">
+          <p className="text-sm text-stone-600">
             Prueba con otra búsqueda o quita los filtros.
           </p>
         </div>
       ) : (
-        <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-          <thead>
-            <tr className="border-b border-slate-200 bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
-              <th className="py-3 px-5 font-semibold">Tarea</th>
-              <th className="py-3 px-5 font-semibold">Plazo</th>
-              <th className="py-3 px-5 font-semibold">Prioridad</th>
-              <th className="py-3 px-5 font-semibold">Asignado a</th>
-              <th className="py-3 px-5 font-semibold text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {lista.map((t) => {
-              const nombreCajero =
-                t.asignado?.nombre || t.asignado?.email || '—'
-              return (
-                <tr
-                  key={t.id}
-                  className="border-b border-slate-100 last:border-0 hover:bg-slate-50/50"
-                >
-                  <td className="py-4 px-5 font-medium text-slate-900">
-                    {t.titulo}
-                  </td>
-                  <td className="py-4 px-5">
-                    <PlazoChip
-                      frecuencia={t.frecuencia}
-                      hora_limite={t.hora_limite}
-                      fecha_limite={t.fecha_limite}
-                      apertura={t.apertura}
-                    />
-                  </td>
-                  <td className="py-4 px-5">
-                    <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${
-                        PRIORIDAD_STYLES[t.prioridad] ??
-                        'bg-slate-100 text-slate-700'
-                      }`}
-                    >
-                      {t.prioridad}
-                    </span>
-                  </td>
-                  <td className="py-4 px-5 text-slate-700">{nombreCajero}</td>
-                  <td className="py-4 px-5">
-                    <div className="flex items-center justify-end gap-4">
-                      <Link
-                        href={`/tasks/${t.id}/edit`}
-                        className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                      >
-                        Editar
-                      </Link>
-                      <DeleteTaskButton
-                        action={deleteTask.bind(null, t.id)}
-                        titulo={t.titulo}
+        <div className="border-t border-stone-200">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="border-b border-stone-200 text-[10px] uppercase tracking-[0.18em] text-stone-500">
+                <th className="py-4 pr-4 font-medium">Tarea</th>
+                <th className="py-4 pr-4 font-medium">Plazo</th>
+                <th className="py-4 pr-4 font-medium">Prioridad</th>
+                <th className="py-4 pr-4 font-medium">Asignado</th>
+                <th className="py-4 pr-4 font-medium text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              {lista.map((t) => {
+                const nombreCajero =
+                  t.asignado?.nombre || t.asignado?.email || '—'
+                return (
+                  <tr
+                    key={t.id}
+                    className="border-b border-stone-100 hover:bg-stone-50/50 transition-colors"
+                  >
+                    <td className="py-5 pr-4 text-stone-900">{t.titulo}</td>
+                    <td className="py-5 pr-4">
+                      <PlazoChip
+                        frecuencia={t.frecuencia}
+                        hora_limite={t.hora_limite}
+                        fecha_limite={t.fecha_limite}
+                        apertura={t.apertura}
                       />
-                    </div>
-                  </td>
-                </tr>
-              )
-            })}
-          </tbody>
-            </table>
-          </div>
+                    </td>
+                    <td className="py-5 pr-4">
+                      <span
+                        className={`text-[11px] uppercase tracking-widest ${
+                          PRIORIDAD_CLASSES[t.prioridad] ?? 'text-stone-500'
+                        }`}
+                      >
+                        {t.prioridad}
+                      </span>
+                    </td>
+                    <td className="py-5 pr-4 text-sm text-stone-700">
+                      {nombreCajero}
+                    </td>
+                    <td className="py-5 pr-4">
+                      <div className="flex items-center justify-end gap-6">
+                        <Link
+                          href={`/tasks/${t.id}/edit`}
+                          className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
+                        >
+                          Editar
+                        </Link>
+                        <DeleteTaskButton
+                          action={deleteTask.bind(null, t.id)}
+                          titulo={t.titulo}
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
+            </tbody>
+          </table>
         </div>
       )}
     </div>
@@ -343,9 +327,7 @@ async function CajeroView({ userId }: { userId: string }) {
   const instances = (instancesRaw ?? []).filter((i) => i.task)
 
   if (instances.length === 0) {
-    return (
-      <EmptyCajero label="🎉 ¡No tienes tareas pendientes! Bien hecho." />
-    )
+    return <EmptyCajero label="No tienes tareas pendientes. Buen trabajo." />
   }
 
   const today = ymdInBogota(new Date())
@@ -365,47 +347,43 @@ async function CajeroView({ userId }: { userId: string }) {
   const bucketsOrden: Bucket[] = ['vencida', 'hoy', 'mañana', 'pronto', 'despues']
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-14">
       {bucketsOrden.map((b) => {
         const items = grupos[b]
         if (!items || items.length === 0) return null
         const meta = BUCKET_META[b]
         return (
           <section key={b}>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-lg">{meta.icon}</span>
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-slate-700">
+            <div className="flex items-end justify-between mb-6 border-b border-stone-200 pb-3">
+              <h2 className="font-serif text-2xl text-stone-900">
                 {meta.label}
               </h2>
-              <span className="text-xs text-slate-500">
-                ({items.length})
+              <span className="text-[11px] uppercase tracking-[0.2em] text-stone-500">
+                {items.length}
               </span>
             </div>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-px bg-stone-200 sm:grid-cols-2">
               {items.map((inst) => (
-                <article
-                  key={inst.id}
-                  className={`rounded-xl border-2 p-5 ${meta.color}`}
-                >
-                  <div className="flex items-start justify-between gap-3 mb-2">
-                    <h3 className="font-semibold text-slate-900">
+                <article key={inst.id} className="bg-white p-7">
+                  <div className="flex items-start justify-between gap-4 mb-3">
+                    <h3 className="font-serif text-xl text-stone-900 leading-tight">
                       {inst.task!.titulo}
                     </h3>
                     <span
-                      className={`shrink-0 px-2 py-0.5 rounded-full text-xs font-medium ${
-                        PRIORIDAD_STYLES[inst.task!.prioridad] ??
-                        'bg-slate-100 text-slate-700'
+                      className={`shrink-0 text-[10px] uppercase tracking-widest ${
+                        PRIORIDAD_CLASSES[inst.task!.prioridad] ??
+                        'text-stone-500'
                       }`}
                     >
                       {inst.task!.prioridad}
                     </span>
                   </div>
                   {inst.task!.descripcion && (
-                    <p className="text-sm text-slate-600 mb-3">
+                    <p className="text-sm text-stone-600 mb-4 leading-relaxed">
                       {inst.task!.descripcion}
                     </p>
                   )}
-                  <div className="mb-3">
+                  <div className="mb-5">
                     <PlazoChip
                       frecuencia={inst.task!.frecuencia}
                       hora_limite={inst.task!.hora_limite}
@@ -428,8 +406,8 @@ async function CajeroView({ userId }: { userId: string }) {
 
 function EmptyCajero({ label }: { label: string }) {
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-      <p className="text-slate-600 text-lg">{label}</p>
+    <div className="border-t border-stone-200 pt-20 text-center">
+      <p className="text-base text-stone-700">{label}</p>
     </div>
   )
 }

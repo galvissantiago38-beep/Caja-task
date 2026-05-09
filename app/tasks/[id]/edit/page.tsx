@@ -25,7 +25,6 @@ export default async function EditTaskPage({
     notFound()
   }
 
-  // Cargar cajeros para el select
   const { data: cajeros, error: cajerosError } = await supabase
     .from('profiles')
     .select('id, nombre, email')
@@ -37,39 +36,44 @@ export default async function EditTaskPage({
     redirect('/error')
   }
 
-  // Wrapper: pre-llenamos el id para que TaskForm pueda invocar la action
-  // con la misma firma que createTask (solo recibe formData)
   const updateTaskWithId = updateTask.bind(null, id)
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
-      <div className="max-w-2xl mx-auto">
-        {/* Encabezado */}
-        <div className="bg-white rounded-2xl shadow-lg p-6 mb-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-2xl font-bold text-slate-900">Editar tarea</h1>
-              <p className="text-slate-600 mt-1">Modifica los detalles de esta tarea.</p>
-            </div>
-            <Link
-              href="/tasks"
-              className="text-sm text-slate-600 hover:text-slate-900"
-            >
-              ← Volver a tareas
-            </Link>
-          </div>
+    <div className="min-h-screen bg-white">
+      <header className="border-b border-stone-200">
+        <div className="max-w-3xl mx-auto px-8 py-6 flex items-center justify-between">
+          <Link href="/dashboard" className="font-serif text-xl tracking-wide">
+            CAJA TASKS
+          </Link>
+          <Link
+            href="/tasks"
+            className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 transition-colors"
+          >
+            ← Tareas
+          </Link>
+        </div>
+      </header>
+
+      <main className="max-w-3xl mx-auto px-8 py-14">
+        <div className="mb-12">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+            Tareas
+          </p>
+          <h1 className="font-serif text-4xl text-stone-900 mb-2">
+            Editar tarea
+          </h1>
+          <p className="text-sm text-stone-600">
+            Modifica los detalles de esta tarea.
+          </p>
         </div>
 
-        {/* Formulario */}
-        <div className="bg-white rounded-2xl shadow-lg p-6">
-          <TaskForm
-            cajeros={cajeros ?? []}
-            task={task}
-            action={updateTaskWithId}
-            submitLabel="Guardar cambios"
-          />
-        </div>
-      </div>
+        <TaskForm
+          cajeros={cajeros ?? []}
+          task={task}
+          action={updateTaskWithId}
+          submitLabel="Guardar cambios"
+        />
+      </main>
     </div>
   )
 }

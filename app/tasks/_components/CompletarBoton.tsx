@@ -13,12 +13,12 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-emerald-700 transition-colors disabled:bg-emerald-300 disabled:cursor-not-allowed inline-flex items-center gap-2"
+      className="bg-stone-900 text-white px-6 py-2.5 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
     >
       {pending && (
-        <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+        <span className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
       )}
-      {pending ? 'Marcando…' : '✓ Marcar hecha'}
+      {pending ? 'Marcando' : 'Marcar hecha'}
     </button>
   )
 }
@@ -31,27 +31,27 @@ export default function CompletarBoton({ action }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="bg-emerald-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-emerald-700 transition-colors"
+        className="bg-stone-900 text-white px-6 py-2.5 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
       >
-        ✓ Marcar hecha
+        Marcar hecha
       </button>
     )
   }
 
   return (
-    <form action={action} className="space-y-2">
+    <form action={action} className="space-y-3">
       <textarea
         name="notas"
         rows={2}
-        placeholder="Notas (opcional): ¿algo a comentar al cerrar?"
-        className="w-full text-sm px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500"
+        placeholder="Notas (opcional)"
+        className="w-full text-sm px-3 py-2.5 border border-stone-300 bg-white text-stone-900 focus:outline-none focus:border-stone-900 transition-colors"
       />
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-3">
         <SubmitButton />
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="text-sm text-slate-600 hover:text-slate-900"
+          className="text-[11px] uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 transition-colors"
         >
           Cancelar
         </button>

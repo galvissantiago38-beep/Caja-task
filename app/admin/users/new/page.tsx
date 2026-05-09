@@ -14,6 +14,12 @@ const ERROR_MESSAGES: Record<string, string> = {
   _default: 'No se pudo crear el usuario.',
 }
 
+const inputCls =
+  'w-full px-3 py-2.5 border border-stone-300 bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 transition-colors'
+
+const labelCls =
+  'block text-[11px] uppercase tracking-[0.18em] text-stone-700 mb-2'
+
 export default async function NewUserPage({
   searchParams,
 }: {
@@ -23,39 +29,34 @@ export default async function NewUserPage({
   const sp = await searchParams
 
   return (
-    <div className="max-w-2xl">
-      <div className="mb-6">
+    <div className="max-w-2xl space-y-10">
+      <div>
         <Link
           href="/admin/users"
-          className="text-sm text-slate-600 hover:text-slate-900"
+          className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 transition-colors"
         >
-          ← Volver a usuarios
+          ← Usuarios
         </Link>
-        <h2 className="text-2xl font-bold text-slate-900 mt-2">
-          Crear nuevo usuario
-        </h2>
-        <p className="text-slate-600 mt-1">
+        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mt-6 mb-3">
+          Equipo
+        </p>
+        <h1 className="font-serif text-4xl text-stone-900 mb-2">
+          Nuevo usuario
+        </h1>
+        <p className="text-sm text-stone-600">
           El usuario podrá iniciar sesión inmediatamente con el correo y
-          contraseña que definas (sin confirmación por email).
+          contraseña que definas.
         </p>
       </div>
 
       {sp.error && (
-        <div className="mb-4">
-          <FlashMessage kind="error" code={sp.error} messages={ERROR_MESSAGES} />
-        </div>
+        <FlashMessage kind="error" code={sp.error} messages={ERROR_MESSAGES} />
       )}
 
-      <form
-        action={createUser}
-        className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 space-y-6"
-      >
+      <form action={createUser} className="space-y-8 border-t border-stone-200 pt-8">
         <div>
-          <label
-            htmlFor="nombre"
-            className="block text-sm font-medium text-slate-700 mb-1"
-          >
-            Nombre completo <span className="text-rose-500">*</span>
+          <label htmlFor="nombre" className={labelCls}>
+            Nombre completo
           </label>
           <input
             id="nombre"
@@ -63,16 +64,13 @@ export default async function NewUserPage({
             type="text"
             required
             placeholder="Ej. María González"
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+            className={inputCls}
           />
         </div>
 
         <div>
-          <label
-            htmlFor="email"
-            className="block text-sm font-medium text-slate-700 mb-1"
-          >
-            Correo electrónico <span className="text-rose-500">*</span>
+          <label htmlFor="email" className={labelCls}>
+            Correo electrónico
           </label>
           <input
             id="email"
@@ -81,42 +79,37 @@ export default async function NewUserPage({
             required
             placeholder="usuario@ejemplo.com"
             autoComplete="off"
-            className="w-full px-3 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-rose-500"
+            className={inputCls}
           />
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-stone-500 mt-2">
             Será el correo con el que inicie sesión.
           </p>
         </div>
 
         <div>
-          <label
-            htmlFor="password"
-            className="block text-sm font-medium text-slate-700 mb-1"
-          >
-            Contraseña <span className="text-rose-500">*</span>
+          <label htmlFor="password" className={labelCls}>
+            Contraseña
           </label>
           <PasswordInput name="password" required showGenerate />
-          <p className="text-xs text-slate-500 mt-2">
+          <p className="text-xs text-stone-500 mt-3">
             Mínimo 6 caracteres. Recomienda al usuario cambiarla en su primer
             ingreso.
           </p>
         </div>
 
         <div>
-          <span className="block text-sm font-medium text-slate-700 mb-2">
-            Rol
-          </span>
+          <span className={labelCls}>Rol</span>
           <RolePicker defaultValue="cajero" />
         </div>
 
-        <div className="flex items-center justify-end gap-3 pt-4 border-t border-slate-200">
+        <div className="flex items-center justify-end gap-4 pt-6 border-t border-stone-200">
           <Link
             href="/admin/users"
-            className="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg font-medium hover:bg-slate-200 transition-colors"
+            className="text-[11px] uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 transition-colors"
           >
             Cancelar
           </Link>
-          <SubmitButton label="Crear usuario" pendingLabel="Creando…" />
+          <SubmitButton label="Crear usuario" pendingLabel="Creando" />
         </div>
       </form>
     </div>
