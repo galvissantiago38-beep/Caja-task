@@ -56,6 +56,7 @@ export default async function TasksPage({
     error?: string
     ok?: string
     q?: string
+    area?: string
     prioridad?: string
     asignado?: string
   }>
@@ -130,6 +131,7 @@ export default async function TasksPage({
         {esGestor ? (
           <GestorView
             q={sp.q}
+            area={sp.area}
             prioridad={sp.prioridad}
             asignado={sp.asignado}
           />
@@ -143,14 +145,30 @@ export default async function TasksPage({
 
 async function GestorView({
   q,
+  area,
   prioridad,
   asignado,
 }: {
   q?: string
+  area?: string
   prioridad?: string
   asignado?: string
 }) {
   const supabase = await createClient()
+
+  // Si hay filtro por área, primero obtenemos los ids de usuarios de esa área
+  let asignadoIdsDelArea: string[] | null = null
+  if (
+    area &&
+    ['cajero', 'visual', 'almacenista'].includes(area)
+  ) {
+    const { data: usuariosArea } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('rol', area)
+      .overrideTypes<{ id: string }[], { merge: false }>()
+    asignadoIdsDelArea = (usuariosArea ?? []).map((u) => u.id)
+  }
 
   let query = supabase
     .from('tasks')
@@ -168,6 +186,12 @@ async function GestorView({
   }
   if (asignado && asignado !== 'all') {
     query = query.eq('asignado_a', asignado)
+  } else if (asignadoIdsDelArea) {
+    if (asignadoIdsDelArea.length === 0) {
+      query = query.eq('asignado_a', '00000000-0000-0000-0000-000000000000')
+    } else {
+      query = query.in('asignado_a', asignadoIdsDelArea)
+    }
   }
 
   const [{ data: tasks, error }, { data: cajeros }] = await Promise.all([
@@ -191,7 +215,7 @@ async function GestorView({
 
   const lista = tasks ?? []
   const cajerosLista = cajeros ?? []
-  const tieneFiltros = !!(q || prioridad || asignado)
+  const tieneFiltros = !!(q || area || prioridad || asignado)
 
   if (lista.length === 0 && !tieneFiltros) {
     return (

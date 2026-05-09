@@ -8,10 +8,17 @@ const APP_URL =
   'https://caja-task.vercel.app'
 const EMAIL_FROM =
   process.env.EMAIL_FROM || 'Caja Tasks <onboarding@resend.dev>'
-// Si está definido, todas las notificaciones se mandan a este correo único
-// en vez de al correo de cada cajero asignado. Útil cuando no hay dominio
-// verificado en Resend y se quiere centralizar todo en una sola bandeja.
-const EMAIL_TO_OVERRIDE = process.env.NOTIFICATIONS_TO?.trim() || null
+// Todas las notificaciones se mandan a este correo único, sin importar
+// a qué persona esté asignada la tarea. El default es el correo
+// corporativo de la tienda; se puede sobreescribir con NOTIFICATIONS_TO
+// en Vercel si en el futuro se quiere mandar a otro lado o restablecer
+// el envío por persona (NOTIFICATIONS_TO=__per_assignee__).
+const EMAIL_TO_OVERRIDE_DEFAULT = 'mdutti.calle82@tendenzanova.com.co'
+const NOTIFICATIONS_TO_RAW = process.env.NOTIFICATIONS_TO?.trim()
+const EMAIL_TO_OVERRIDE =
+  NOTIFICATIONS_TO_RAW === '__per_assignee__'
+    ? null
+    : NOTIFICATIONS_TO_RAW || EMAIL_TO_OVERRIDE_DEFAULT
 
 type NotifKind = 'diaria_2h' | 'definida_24h' | 'lapso_apertura' | 'lapso_cierre'
 
