@@ -6,8 +6,9 @@ import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 const FILTERS = [
   { value: 'all', label: 'Todos' },
   { value: 'admin', label: 'Admin' },
-  { value: 'lider', label: 'Líder' },
   { value: 'cajero', label: 'Cajero' },
+  { value: 'visual', label: 'Visual' },
+  { value: 'almacenista', label: 'Almacén' },
 ]
 
 export default function UserFilterBar() {

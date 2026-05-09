@@ -27,8 +27,9 @@ export default async function EditTaskPage({
 
   const { data: cajeros, error: cajerosError } = await supabase
     .from('profiles')
-    .select('id, nombre, email')
-    .eq('rol', 'cajero')
+    .select('id, nombre, email, rol')
+    .in('rol', ['cajero', 'visual', 'almacenista'])
+    .order('rol', { ascending: true })
     .order('nombre', { ascending: true })
 
   if (cajerosError) {

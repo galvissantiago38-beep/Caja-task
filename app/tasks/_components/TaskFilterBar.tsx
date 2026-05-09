@@ -3,7 +3,18 @@
 import Link from 'next/link'
 import { usePathname, useRouter, useSearchParams } from 'next/navigation'
 
-type Cajero = { id: string; nombre: string | null; email: string }
+type Cajero = {
+  id: string
+  nombre: string | null
+  email: string
+  rol?: string | null
+}
+
+const ROL_LABEL: Record<string, string> = {
+  cajero: 'Cajero',
+  visual: 'Visual',
+  almacenista: 'Almacén',
+}
 
 const PRIORIDADES = [
   { value: 'all', label: 'Todas' },
@@ -92,12 +103,16 @@ export default function TaskFilterBar({ cajeros }: { cajeros: Cajero[] }) {
           onChange={onAsignadoChange}
           className="px-3 py-2 border border-stone-300 bg-white text-sm text-stone-900 focus:outline-none focus:border-stone-900 transition-colors"
         >
-          <option value="all">Todos los cajeros</option>
-          {cajeros.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.nombre || c.email}
-            </option>
-          ))}
+          <option value="all">Toda el área</option>
+          {cajeros.map((c) => {
+            const rolLabel = c.rol ? ROL_LABEL[c.rol] : null
+            return (
+              <option key={c.id} value={c.id}>
+                {c.nombre || c.email}
+                {rolLabel ? ` — ${rolLabel}` : ''}
+              </option>
+            )
+          })}
         </select>
       </div>
     </div>

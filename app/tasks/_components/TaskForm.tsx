@@ -7,6 +7,13 @@ type Cajero = {
   id: string
   nombre: string | null
   email: string
+  rol?: string | null
+}
+
+const ROL_LABEL: Record<string, string> = {
+  cajero: 'Cajero',
+  visual: 'Visual',
+  almacenista: 'Almacén',
 }
 
 export type TaskFormData = {
@@ -86,8 +93,8 @@ export default function TaskForm({
     <form action={action} className="space-y-10">
       {sinCajeros && (
         <div className="border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-700">
-          No hay cajeros registrados aún. Necesitas al menos uno para asignarle
-          tareas.
+          No hay miembros del equipo registrados aún. Necesitas al menos uno
+          para asignarle tareas.
         </div>
       )}
 
@@ -177,7 +184,7 @@ export default function TaskForm({
               className={inputCls}
             />
             <p className="text-xs text-stone-500 mt-2">
-              El cajero recibirá un aviso antes de esta hora.
+              La persona asignada recibirá un aviso antes de esta hora.
             </p>
           </div>
         )}
@@ -293,13 +300,17 @@ export default function TaskForm({
           className={`${inputCls} disabled:bg-stone-50 disabled:text-stone-400`}
         >
           <option value="" disabled>
-            Selecciona un cajero
+            Selecciona una persona
           </option>
-          {cajeros.map((c) => (
-            <option key={c.id} value={c.id}>
-              {c.nombre || c.email}
-            </option>
-          ))}
+          {cajeros.map((c) => {
+            const rolLabel = c.rol ? ROL_LABEL[c.rol] : null
+            return (
+              <option key={c.id} value={c.id}>
+                {c.nombre || c.email}
+                {rolLabel ? ` — ${rolLabel}` : ''}
+              </option>
+            )
+          })}
         </select>
       </div>
 

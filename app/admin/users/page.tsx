@@ -43,7 +43,10 @@ export default async function UsersPage({
     .order('rol', { ascending: true })
     .order('nombre', { ascending: true })
 
-  if (sp.rol && ['admin', 'lider', 'cajero'].includes(sp.rol)) {
+  if (
+    sp.rol &&
+    ['admin', 'lider', 'cajero', 'visual', 'almacenista'].includes(sp.rol)
+  ) {
     query = query.eq('rol', sp.rol)
   }
   if (sp.q && sp.q.trim()) {

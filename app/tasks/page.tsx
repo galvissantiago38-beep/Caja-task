@@ -174,11 +174,12 @@ async function GestorView({
     query.overrideTypes<GestorTask[], { merge: false }>(),
     supabase
       .from('profiles')
-      .select('id, nombre, email')
-      .eq('rol', 'cajero')
+      .select('id, nombre, email, rol')
+      .in('rol', ['cajero', 'visual', 'almacenista'])
+      .order('rol', { ascending: true })
       .order('nombre', { ascending: true })
       .overrideTypes<
-        { id: string; nombre: string | null; email: string }[],
+        { id: string; nombre: string | null; email: string; rol: string | null }[],
         { merge: false }
       >(),
   ])

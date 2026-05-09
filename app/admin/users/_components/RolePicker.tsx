@@ -2,23 +2,28 @@
 
 import { useState } from 'react'
 
-type Rol = 'admin' | 'lider' | 'cajero'
+type Rol = 'admin' | 'cajero' | 'visual' | 'almacenista'
 
 const OPTIONS: { value: Rol; label: string; desc: string }[] = [
   {
     value: 'cajero',
     label: 'Cajero',
-    desc: 'Ve y completa las tareas que se le asignan.',
+    desc: 'Trabaja en caja. Ve y completa sus tareas asignadas.',
   },
   {
-    value: 'lider',
-    label: 'Líder',
-    desc: 'Crea, edita y asigna tareas a los cajeros.',
+    value: 'visual',
+    label: 'Visual',
+    desc: 'Visual merchandising. Ve y completa sus tareas asignadas.',
+  },
+  {
+    value: 'almacenista',
+    label: 'Almacenista',
+    desc: 'Trabaja en almacén. Ve y completa sus tareas asignadas.',
   },
   {
     value: 'admin',
     label: 'Administrador',
-    desc: 'Gestiona usuarios y tiene acceso total al panel.',
+    desc: 'Gestiona usuarios y tareas. Acceso total al panel.',
   },
 ]
 

@@ -9,8 +9,9 @@ export default async function NewTaskPage() {
 
   const { data: cajeros, error } = await supabase
     .from('profiles')
-    .select('id, nombre, email')
-    .eq('rol', 'cajero')
+    .select('id, nombre, email, rol')
+    .in('rol', ['cajero', 'visual', 'almacenista'])
+    .order('rol', { ascending: true })
     .order('nombre', { ascending: true })
 
   if (error) {
@@ -43,7 +44,7 @@ export default async function NewTaskPage() {
             Nueva tarea
           </h1>
           <p className="text-sm text-stone-600">
-            Crea una tarea y asígnala a un cajero.
+            Crea una tarea y asígnala a alguien del equipo.
           </p>
         </div>
 

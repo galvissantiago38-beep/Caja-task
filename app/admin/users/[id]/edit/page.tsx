@@ -61,7 +61,10 @@ export default async function EditUserPage({
   const resetAction = resetUserPassword.bind(null, profile.id)
 
   const rolDefault =
-    profile.rol === 'admin' || profile.rol === 'lider' || profile.rol === 'cajero'
+    profile.rol === 'admin' ||
+    profile.rol === 'cajero' ||
+    profile.rol === 'visual' ||
+    profile.rol === 'almacenista'
       ? profile.rol
       : 'cajero'
 

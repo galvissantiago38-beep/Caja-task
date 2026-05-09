@@ -7,12 +7,16 @@ const LABELS: Record<string, string> = {
   admin: 'Admin',
   lider: 'Líder',
   cajero: 'Cajero',
+  visual: 'Visual',
+  almacenista: 'Almacenista',
 }
 
 const STYLES: Record<string, string> = {
   admin: 'border-stone-900 text-stone-900',
   lider: 'border-stone-500 text-stone-700',
   cajero: 'border-stone-300 text-stone-500',
+  visual: 'border-stone-300 text-stone-500',
+  almacenista: 'border-stone-300 text-stone-500',
 }
 
 export default function RoleBadge({ rol, size = 'md' }: RoleBadgeProps) {

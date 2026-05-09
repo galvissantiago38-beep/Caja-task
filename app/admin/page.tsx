@@ -26,8 +26,10 @@ export default async function AdminHome() {
 
   const total = users?.length ?? 0
   const admins = users?.filter((u) => u.rol === 'admin').length ?? 0
-  const lideres = users?.filter((u) => u.rol === 'lider').length ?? 0
   const cajeros = users?.filter((u) => u.rol === 'cajero').length ?? 0
+  const visuales = users?.filter((u) => u.rol === 'visual').length ?? 0
+  const almacenistas =
+    users?.filter((u) => u.rol === 'almacenista').length ?? 0
 
   return (
     <div className="space-y-14">
@@ -47,11 +49,12 @@ export default async function AdminHome() {
         <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-5">
           Equipo
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-stone-200">
-          <Stat label="Total" value={total} />
+        <Stat label="Total" value={total} />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-stone-200 mt-px">
           <Stat label="Admins" value={admins} />
-          <Stat label="Líderes" value={lideres} />
           <Stat label="Cajeros" value={cajeros} />
+          <Stat label="Visual" value={visuales} />
+          <Stat label="Almacén" value={almacenistas} />
         </div>
       </section>
 

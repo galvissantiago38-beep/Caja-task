@@ -24,6 +24,8 @@ const ROL_LABEL: Record<string, string> = {
   admin: 'Administrador',
   lider: 'Líder',
   cajero: 'Cajero',
+  visual: 'Visual',
+  almacenista: 'Almacenista',
 }
 
 const inputCls =
