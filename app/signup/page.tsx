@@ -7,7 +7,7 @@ export default function SignupPage() {
       <div className="w-full max-w-sm">
         <div className="text-center mb-14">
           <h1 className="font-serif text-4xl text-stone-900 tracking-wide mb-3">
-            CAJA TASKS
+            TASKS
           </h1>
           <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500">
             Crear cuenta

@@ -19,7 +19,7 @@ export default async function AdminLayout({
               href="/dashboard"
               className="font-serif text-xl tracking-wide"
             >
-              CAJA TASKS
+              TASKS
             </Link>
             <span className="text-[10px] uppercase tracking-[0.25em] text-stone-500 border border-stone-300 px-2 py-0.5">
               Admin

@@ -64,7 +64,7 @@ export default async function DashboardPage() {
       <header className="border-b border-stone-200">
         <div className="max-w-5xl mx-auto px-8 py-6 flex items-center justify-between">
           <Link href="/dashboard" className="font-serif text-xl tracking-wide">
-            CAJA TASKS
+            TASKS
           </Link>
           <nav className="flex items-center gap-8">
             <Link
@@ -88,13 +88,14 @@ export default async function DashboardPage() {
       <main className="max-w-5xl mx-auto px-8 py-14">
         <div className="mb-14">
           <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
-            Bienvenido
+            Massimo Dutti · Calle 82
           </p>
-          <h1 className="font-serif text-5xl text-stone-900 leading-tight">
-            {profile?.nombre || 'Equipo'}
+          <h1 className="font-serif text-5xl text-stone-900 leading-tight italic">
+            {greetingForBogota()}.
           </h1>
-          <p className="text-sm text-stone-500 mt-3">
-            Selecciona un área para ver y gestionar sus tareas.
+          <p className="text-sm text-stone-500 mt-4 max-w-md leading-relaxed">
+            Cada detalle cuenta. Selecciona un área para ver y gestionar sus
+            tareas.
           </p>
         </div>
 
@@ -169,6 +170,14 @@ export default async function DashboardPage() {
       </main>
     </div>
   )
+}
+
+function greetingForBogota(): string {
+  const utcHour = new Date().getUTCHours()
+  const bogotaHour = (utcHour - 5 + 24) % 24
+  if (bogotaHour < 12) return 'Buenos días'
+  if (bogotaHour < 19) return 'Buenas tardes'
+  return 'Buenas noches'
 }
 
 function computeAreaCounts(

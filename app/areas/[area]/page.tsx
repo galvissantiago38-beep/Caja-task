@@ -106,7 +106,7 @@ export default async function AreaPage({
       <header className="border-b border-stone-200">
         <div className="max-w-5xl mx-auto px-8 py-6 flex items-center justify-between">
           <Link href="/dashboard" className="font-serif text-xl tracking-wide">
-            CAJA TASKS
+            TASKS
           </Link>
           <Link
             href="/dashboard"
