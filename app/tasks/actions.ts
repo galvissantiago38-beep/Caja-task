@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server'
 import { requireGestor } from './_lib/require-gestor'
 
 const FRECUENCIAS_VALIDAS = ['unica', 'diaria', 'semanal', 'mensual', 'lapso']
+const AREAS_VALIDAS = ['cajero', 'visual', 'almacenista']
 const PRIORIDADES_VALIDAS = ['alta', 'media', 'baja']
 
 type TaskPayload = {
@@ -13,7 +14,7 @@ type TaskPayload = {
   descripcion: string | null
   frecuencia: string
   prioridad: string
-  asignado_a: string | null
+  area: string
   hora_limite: string | null
   fecha_limite: string | null
   apertura: string | null
@@ -29,6 +30,11 @@ function buildPayload(formData: FormData): TaskPayload | { error: string } {
     return { error: 'Frecuencia inválida.' }
   }
 
+  const areaRaw = String(formData.get('area') ?? '')
+  if (!AREAS_VALIDAS.includes(areaRaw)) {
+    return { error: 'Área inválida.' }
+  }
+
   const prioridadRaw = String(formData.get('prioridad') ?? 'media')
   const prioridad = PRIORIDADES_VALIDAS.includes(prioridadRaw)
     ? prioridadRaw
@@ -39,7 +45,6 @@ function buildPayload(formData: FormData): TaskPayload | { error: string } {
   const aperturaRaw = String(formData.get('apertura') ?? '').trim()
   const diaMesRaw = String(formData.get('dia_del_mes') ?? '').trim()
 
-  // Validaciones por tipo
   if (frecuenciaRaw === 'diaria' && !horaRaw) {
     return { error: 'Las tareas diarias requieren una hora límite.' }
   }
@@ -60,7 +65,7 @@ function buildPayload(formData: FormData): TaskPayload | { error: string } {
     descripcion: String(formData.get('descripcion') ?? '').trim() || null,
     frecuencia: frecuenciaRaw,
     prioridad,
-    asignado_a: String(formData.get('asignado_a') ?? '') || null,
+    area: areaRaw,
     hora_limite: horaRaw || null,
     fecha_limite: fechaRaw || null,
     apertura: frecuenciaRaw === 'lapso' ? aperturaRaw || null : null,
@@ -69,6 +74,12 @@ function buildPayload(formData: FormData): TaskPayload | { error: string } {
         ? parseInt(diaMesRaw, 10)
         : null,
   }
+}
+
+function areaSlugFromRol(rol: string): string {
+  if (rol === 'cajero') return 'caja'
+  if (rol === 'almacenista') return 'almacen'
+  return rol
 }
 
 export async function createTask(formData: FormData) {
@@ -92,7 +103,9 @@ export async function createTask(formData: FormData) {
   }
 
   revalidatePath('/tasks')
-  redirect('/tasks')
+  revalidatePath('/dashboard')
+  revalidatePath(`/areas/${areaSlugFromRol(payload.area)}`)
+  redirect(`/areas/${areaSlugFromRol(payload.area)}`)
 }
 
 export async function updateTask(id: string, formData: FormData) {
@@ -115,7 +128,9 @@ export async function updateTask(id: string, formData: FormData) {
   }
 
   revalidatePath('/tasks')
-  redirect('/tasks')
+  revalidatePath('/dashboard')
+  revalidatePath(`/areas/${areaSlugFromRol(payload.area)}`)
+  redirect(`/areas/${areaSlugFromRol(payload.area)}`)
 }
 
 export async function deleteTask(id: string) {
@@ -132,9 +147,9 @@ export async function deleteTask(id: string) {
   }
 
   revalidatePath('/tasks')
+  revalidatePath('/dashboard')
 }
 
-// Cajero (o el asignado) marca una instancia como completada.
 export async function completarInstancia(
   instanceId: string,
   formData: FormData
@@ -147,37 +162,29 @@ export async function completarInstancia(
 
   const notas = String(formData.get('notas') ?? '').trim() || null
 
-  // Verificar que la instancia exista y que el usuario sea el asignado
-  // (o gestor — admin/lider pueden cerrar por el cajero si hace falta).
   const { data: instance } = await supabase
     .from('task_instances')
-    .select('id, completada_en, task:tasks!task_id(asignado_a, activa)')
+    .select(
+      'id, completada_en, task:tasks!task_id(area, asignado_a, activa)'
+    )
     .eq('id', instanceId)
     .single<{
       id: string
       completada_en: string | null
-      task: { asignado_a: string | null; activa: boolean } | null
+      task: {
+        area: string | null
+        asignado_a: string | null
+        activa: boolean
+      } | null
     }>()
 
   if (!instance || !instance.task) {
-    redirect('/tasks?error=no-existe')
+    redirect('/dashboard?error=no-existe')
   }
 
   if (instance.completada_en) {
-    revalidatePath('/tasks')
+    revalidatePath('/dashboard')
     return
-  }
-
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('rol')
-    .eq('id', user.id)
-    .single<{ rol: string | null }>()
-
-  const esGestor = profile?.rol === 'admin' || profile?.rol === 'lider'
-  const esAsignado = instance.task.asignado_a === user.id
-  if (!esGestor && !esAsignado) {
-    redirect('/tasks?error=no-autorizado')
   }
 
   const { error } = await supabase
@@ -191,8 +198,12 @@ export async function completarInstancia(
 
   if (error) {
     console.error('Error completando instancia:', error)
-    redirect('/tasks?error=no-completada')
+    redirect('/dashboard?error=no-completada')
   }
 
+  revalidatePath('/dashboard')
   revalidatePath('/tasks')
+  if (instance.task.area) {
+    revalidatePath(`/areas/${areaSlugFromRol(instance.task.area)}`)
+  }
 }

@@ -8,21 +8,20 @@ const APP_URL =
   'https://caja-task.vercel.app'
 const EMAIL_FROM =
   process.env.EMAIL_FROM || 'Caja Tasks <onboarding@resend.dev>'
-// Todas las notificaciones se mandan a este correo único, sin importar
-// a qué persona esté asignada la tarea. El default es el correo
-// corporativo de la tienda; se puede sobreescribir con NOTIFICATIONS_TO
-// en Vercel si en el futuro se quiere mandar a otro lado o restablecer
-// el envío por persona (NOTIFICATIONS_TO=__per_assignee__).
+// Single inbox para todas las notificaciones del cron. Default = correo
+// corporativo de la tienda. Sobreescribir con NOTIFICATIONS_TO en Vercel
+// si en algún momento se quiere apuntar a otro lado.
 const EMAIL_TO_OVERRIDE_DEFAULT = 'mdutti.calle82@tendenzanova.com.co'
 const NOTIFICATIONS_TO_RAW = process.env.NOTIFICATIONS_TO?.trim()
-const EMAIL_TO_OVERRIDE =
-  NOTIFICATIONS_TO_RAW === '__per_assignee__'
-    ? null
-    : NOTIFICATIONS_TO_RAW || EMAIL_TO_OVERRIDE_DEFAULT
+const EMAIL_TO_FINAL = NOTIFICATIONS_TO_RAW || EMAIL_TO_OVERRIDE_DEFAULT
+
+const AREA_LABEL: Record<string, string> = {
+  cajero: 'Caja',
+  visual: 'Visual',
+  almacenista: 'Almacén',
+}
 
 type NotifKind = 'diaria_2h' | 'definida_24h' | 'lapso_apertura' | 'lapso_cierre'
-
-type AsignadoLite = { email: string | null; nombre: string | null } | null
 
 type TaskLite = {
   id: string
@@ -32,7 +31,7 @@ type TaskLite = {
   prioridad: string
   hora_limite: string | null
   apertura: string | null
-  asignado: AsignadoLite
+  area: string | null
 }
 
 type Instance = {
@@ -47,7 +46,7 @@ export type NotificationsRunSummary = {
   instancias_generadas: number
   total_pendientes: number
   enviadas: number
-  detalles: { kind: NotifKind; email: string; titulo: string }[]
+  detalles: { kind: NotifKind; area: string | null; titulo: string }[]
   errores: { instance_id: string; error: string }[]
 }
 
@@ -59,19 +58,15 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
   const todayBogota = ymdInBogota(now)
   const tomorrowBogota = addDays(todayBogota, 1)
 
-  // 1) Generar instancias de hoy para diarias activas que aún no la tienen.
-  //    Sin esto, una tarea diaria solo tiene la instancia inicial y nunca se
-  //    "renueva" después de que el cajero la marca hecha.
   const instancias_generadas = await generateMissingDailyInstances(
     admin,
     todayBogota
   )
 
-  // 2) Levantar todas las instancias pendientes (ya con las recién creadas).
   const { data: instances, error } = await admin
     .from('task_instances')
     .select(
-      'id, fecha_limite, notificada_dia, notificada_apertura, task:tasks!task_id(id, titulo, descripcion, frecuencia, prioridad, hora_limite, apertura, asignado:profiles!asignado_a(email, nombre))'
+      'id, fecha_limite, notificada_dia, notificada_apertura, task:tasks!task_id(id, titulo, descripcion, frecuencia, prioridad, hora_limite, apertura, area)'
     )
     .is('completada_en', null)
     .overrideTypes<Instance[], { merge: false }>()
@@ -88,19 +83,18 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
   }
 
   const list = instances ?? []
-
   const detalles: NotificationsRunSummary['detalles'] = []
   const errores: NotificationsRunSummary['errores'] = []
 
   for (const inst of list) {
     if (!inst.task) continue
     const task = inst.task
-    const asignado = task.asignado
-    if (!asignado || !asignado.email) continue
-    const email: string = asignado.email
-    const nombreCajero: string | null = asignado.nombre
 
-    const send = async (kind: NotifKind, plazoText: string, flagColumn: 'notificada_dia' | 'notificada_apertura') => {
+    const send = async (
+      kind: NotifKind,
+      plazoText: string,
+      flagColumn: 'notificada_dia' | 'notificada_apertura'
+    ) => {
       const subject = subjectFor(kind, task.titulo)
       const html = renderEmail({
         kind,
@@ -108,11 +102,11 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
         descripcion: task.descripcion,
         prioridad: task.prioridad,
         plazoText,
-        nombreCajero,
+        area: task.area,
       })
       const result = await resend.emails.send({
         from: EMAIL_FROM,
-        to: EMAIL_TO_OVERRIDE ?? email,
+        to: EMAIL_TO_FINAL,
         subject,
         html,
       })
@@ -123,12 +117,10 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
         .from('task_instances')
         .update({ [flagColumn]: true })
         .eq('id', inst.id)
-      detalles.push({ kind, email, titulo: task.titulo })
+      detalles.push({ kind, area: task.area, titulo: task.titulo })
     }
 
     try {
-      // Cron diario (Hobby permite max 1 corrida/día). La idea: cada mañana,
-      // por cada instancia que aplique, mandamos su recordatorio una vez.
       if (
         task.frecuencia === 'diaria' &&
         !inst.notificada_dia &&
@@ -230,12 +222,11 @@ async function generateMissingDailyInstances(
   return rows.length
 }
 
-
 const SUBJECTS: Record<NotifKind, (titulo: string) => string> = {
-  diaria_2h: (t) => `📅 Tu tarea de hoy: ${t}`,
-  definida_24h: (t) => `⏰ Vence mañana: ${t}`,
-  lapso_apertura: (t) => `🗓️ Mañana se habilita: ${t}`,
-  lapso_cierre: (t) => `⚠️ Último día mañana: ${t}`,
+  diaria_2h: (t) => `Tarea de hoy: ${t}`,
+  definida_24h: (t) => `Vence mañana: ${t}`,
+  lapso_apertura: (t) => `Mañana se habilita: ${t}`,
+  lapso_cierre: (t) => `Último día mañana: ${t}`,
 }
 
 function subjectFor(kind: NotifKind, titulo: string) {
@@ -244,22 +235,9 @@ function subjectFor(kind: NotifKind, titulo: string) {
 
 const HEADLINES: Record<NotifKind, string> = {
   diaria_2h: 'Tarea para hoy',
-  definida_24h: 'Tu tarea vence mañana',
-  lapso_apertura: 'Mañana se abre tu tarea',
+  definida_24h: 'Tarea que vence mañana',
+  lapso_apertura: 'Mañana se abre una tarea',
   lapso_cierre: 'Mañana es el último día',
-}
-
-const ACCENTS: Record<NotifKind, string> = {
-  diaria_2h: '#f59e0b',
-  definida_24h: '#3b82f6',
-  lapso_apertura: '#10b981',
-  lapso_cierre: '#ef4444',
-}
-
-const PRIORIDAD_COLOR: Record<string, string> = {
-  alta: '#dc2626',
-  media: '#d97706',
-  baja: '#16a34a',
 }
 
 function renderEmail(opts: {
@@ -268,30 +246,28 @@ function renderEmail(opts: {
   descripcion: string | null
   prioridad: string
   plazoText: string
-  nombreCajero: string | null
+  area: string | null
 }): string {
-  const accent = ACCENTS[opts.kind]
-  const prioColor = PRIORIDAD_COLOR[opts.prioridad] ?? '#475569'
-  const greeting = opts.nombreCajero ? `Hola ${escapeHtml(opts.nombreCajero)},` : 'Hola,'
+  const areaLabel = opts.area ? AREA_LABEL[opts.area] ?? opts.area : '—'
   return `<!doctype html>
 <html lang="es">
-<body style="margin:0;padding:0;background:#f1f5f9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;">
+<body style="margin:0;padding:0;background:#faf6ed;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#1c1917;">
   <div style="max-width:560px;margin:32px auto;padding:0 16px;">
-    <p style="color:#64748b;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;margin:0 0 8px;">Caja Tasks</p>
-    <div style="background:white;border-radius:16px;padding:32px;box-shadow:0 1px 3px rgba(0,0,0,0.05);">
-      <h1 style="font-size:22px;font-weight:700;color:#0f172a;margin:0 0 8px;">${escapeHtml(HEADLINES[opts.kind])}</h1>
-      <p style="color:#64748b;margin:0 0 24px;">${greeting}</p>
-      <div style="border-left:4px solid ${accent};background:#f8fafc;padding:16px 18px;border-radius:0 8px 8px 0;">
-        <p style="font-weight:600;font-size:18px;color:#0f172a;margin:0 0 4px;">${escapeHtml(opts.titulo)}</p>
-        ${opts.descripcion ? `<p style="color:#475569;margin:8px 0;font-size:14px;line-height:1.5;">${escapeHtml(opts.descripcion)}</p>` : ''}
-        <p style="color:#475569;margin:12px 0 4px;font-size:14px;">⏰ ${escapeHtml(opts.plazoText)}</p>
-        <p style="color:${prioColor};margin:0;font-size:14px;font-weight:500;">⚡ Prioridad ${escapeHtml(opts.prioridad)}</p>
+    <p style="color:#78716c;font-size:11px;text-transform:uppercase;letter-spacing:0.25em;margin:0 0 12px;">Caja Tasks</p>
+    <div style="background:white;border:1px solid #e7e5e4;padding:32px;">
+      <p style="color:#78716c;font-size:11px;text-transform:uppercase;letter-spacing:0.25em;margin:0 0 8px;">Área · ${escapeHtml(areaLabel)}</p>
+      <h1 style="font-family:Georgia,serif;font-size:26px;font-weight:400;color:#1c1917;margin:0 0 24px;letter-spacing:0.01em;">${escapeHtml(HEADLINES[opts.kind])}</h1>
+      <div style="border-top:1px solid #e7e5e4;padding-top:20px;margin-top:8px;">
+        <p style="font-weight:600;font-size:17px;color:#1c1917;margin:0 0 6px;">${escapeHtml(opts.titulo)}</p>
+        ${opts.descripcion ? `<p style="color:#57534e;margin:8px 0;font-size:14px;line-height:1.55;">${escapeHtml(opts.descripcion)}</p>` : ''}
+        <p style="color:#57534e;margin:14px 0 4px;font-size:13px;">${escapeHtml(opts.plazoText)}</p>
+        <p style="color:#57534e;margin:0;font-size:11px;text-transform:uppercase;letter-spacing:0.18em;">Prioridad · ${escapeHtml(opts.prioridad)}</p>
       </div>
-      <div style="margin-top:24px;">
-        <a href="${APP_URL}/tasks" style="display:inline-block;background:#2563eb;color:white;padding:12px 24px;border-radius:8px;text-decoration:none;font-weight:500;font-size:15px;">Ir a mis tareas →</a>
+      <div style="margin-top:28px;">
+        <a href="${APP_URL}/dashboard" style="display:inline-block;background:#1c1917;color:white;padding:12px 28px;text-decoration:none;font-size:11px;text-transform:uppercase;letter-spacing:0.25em;font-weight:500;">Abrir Caja Tasks</a>
       </div>
     </div>
-    <p style="color:#94a3b8;font-size:12px;margin:24px 0 0;text-align:center;">Recordatorio automático. Si ya la completaste, marca como hecha en la app.</p>
+    <p style="color:#a8a29e;font-size:11px;margin:24px 0 0;text-align:center;letter-spacing:0.05em;">Recordatorio automático. Si ya está hecha, márcala desde la app.</p>
   </div>
 </body>
 </html>`

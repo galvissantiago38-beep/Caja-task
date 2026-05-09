@@ -3,34 +3,22 @@
 import Link from 'next/link'
 import { useState } from 'react'
 
-type Cajero = {
-  id: string
-  nombre: string | null
-  email: string
-  rol?: string | null
-}
-
-const ROL_LABEL: Record<string, string> = {
-  cajero: 'Cajero',
-  visual: 'Visual',
-  almacenista: 'Almacén',
-}
-
 export type TaskFormData = {
   id: string
   titulo: string
   descripcion: string | null
   frecuencia: string
   prioridad: string
-  asignado_a: string | null
+  area: string | null
   hora_limite: string | null
   fecha_limite: string | null
   apertura: string | null
 }
 
 type TaskFormProps = {
-  cajeros: Cajero[]
   task?: TaskFormData
+  defaultArea?: string
+  cancelHref?: string
   action: (formData: FormData) => void | Promise<void>
   submitLabel: string
 }
@@ -59,6 +47,12 @@ const FRECUENCIAS: {
   },
 ]
 
+const AREAS = [
+  { value: 'cajero', label: 'Caja' },
+  { value: 'visual', label: 'Visual' },
+  { value: 'almacenista', label: 'Almacén' },
+]
+
 const PRIORIDADES = [
   { value: 'alta', label: 'Alta' },
   { value: 'media', label: 'Media' },
@@ -70,6 +64,11 @@ function normalizeFrecuencia(raw: string | undefined): Frecuencia {
   return 'diaria'
 }
 
+function normalizeArea(raw: string | null | undefined): string {
+  if (raw === 'cajero' || raw === 'visual' || raw === 'almacenista') return raw
+  return 'cajero'
+}
+
 const inputCls =
   'w-full px-3 py-2.5 border border-stone-300 bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 transition-colors'
 
@@ -77,8 +76,9 @@ const labelCls =
   'block text-[11px] uppercase tracking-[0.18em] text-stone-700 mb-2'
 
 export default function TaskForm({
-  cajeros,
   task,
+  defaultArea,
+  cancelHref = '/tasks',
   action,
   submitLabel,
 }: TaskFormProps) {
@@ -86,18 +86,12 @@ export default function TaskForm({
     normalizeFrecuencia(task?.frecuencia)
   )
   const [prioridad, setPrioridad] = useState(task?.prioridad ?? 'media')
-
-  const sinCajeros = cajeros.length === 0
+  const [area, setArea] = useState<string>(
+    normalizeArea(task?.area ?? defaultArea)
+  )
 
   return (
     <form action={action} className="space-y-10">
-      {sinCajeros && (
-        <div className="border border-stone-300 bg-stone-50 px-4 py-3 text-sm text-stone-700">
-          No hay miembros del equipo registrados aún. Necesitas al menos uno
-          para asignarle tareas.
-        </div>
-      )}
-
       <div>
         <label htmlFor="titulo" className={labelCls}>
           Título
@@ -125,6 +119,35 @@ export default function TaskForm({
           placeholder="Detalles opcionales"
           className={inputCls}
         />
+      </div>
+
+      <div>
+        <span className={labelCls}>Área</span>
+        <div className="grid gap-px bg-stone-200 sm:grid-cols-3">
+          {AREAS.map((a) => {
+            const active = area === a.value
+            return (
+              <label
+                key={a.value}
+                className={`cursor-pointer p-5 transition-colors text-center ${
+                  active
+                    ? 'bg-stone-900 text-white'
+                    : 'bg-white text-stone-900 hover:bg-stone-50'
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="area"
+                  value={a.value}
+                  checked={active}
+                  onChange={() => setArea(a.value)}
+                  className="sr-only"
+                />
+                <span className="font-serif text-lg block">{a.label}</span>
+              </label>
+            )
+          })}
+        </div>
       </div>
 
       <div>
@@ -184,7 +207,7 @@ export default function TaskForm({
               className={inputCls}
             />
             <p className="text-xs text-stone-500 mt-2">
-              La persona asignada recibirá un aviso antes de esta hora.
+              El equipo recibirá un aviso antes de esta hora.
             </p>
           </div>
         )}
@@ -287,44 +310,16 @@ export default function TaskForm({
         </div>
       </div>
 
-      <div>
-        <label htmlFor="asignado_a" className={labelCls}>
-          Asignado a
-        </label>
-        <select
-          id="asignado_a"
-          name="asignado_a"
-          required
-          defaultValue={task?.asignado_a ?? ''}
-          disabled={sinCajeros}
-          className={`${inputCls} disabled:bg-stone-50 disabled:text-stone-400`}
-        >
-          <option value="" disabled>
-            Selecciona una persona
-          </option>
-          {cajeros.map((c) => {
-            const rolLabel = c.rol ? ROL_LABEL[c.rol] : null
-            return (
-              <option key={c.id} value={c.id}>
-                {c.nombre || c.email}
-                {rolLabel ? ` — ${rolLabel}` : ''}
-              </option>
-            )
-          })}
-        </select>
-      </div>
-
       <div className="flex items-center justify-end gap-4 pt-6 border-t border-stone-200">
         <Link
-          href="/tasks"
+          href={cancelHref}
           className="text-[11px] uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 transition-colors"
         >
           Cancelar
         </Link>
         <button
           type="submit"
-          disabled={sinCajeros}
-          className="bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
         >
           {submitLabel}
         </button>

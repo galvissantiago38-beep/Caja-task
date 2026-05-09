@@ -1,8 +1,14 @@
 import Link from 'next/link'
-import { notFound, redirect } from 'next/navigation'
+import { notFound } from 'next/navigation'
 import { updateTask } from '../../actions'
 import { requireGestor } from '../../_lib/require-gestor'
 import TaskForm from '../../_components/TaskForm'
+
+const AREA_SLUG: Record<string, string> = {
+  cajero: 'caja',
+  visual: 'visual',
+  almacenista: 'almacen',
+}
 
 export default async function EditTaskPage({
   params,
@@ -15,7 +21,7 @@ export default async function EditTaskPage({
   const { data: task, error: taskError } = await supabase
     .from('tasks')
     .select(
-      'id, titulo, descripcion, frecuencia, prioridad, asignado_a, hora_limite, fecha_limite, apertura'
+      'id, titulo, descripcion, frecuencia, prioridad, area, hora_limite, fecha_limite, apertura'
     )
     .eq('id', id)
     .eq('activa', true)
@@ -25,19 +31,10 @@ export default async function EditTaskPage({
     notFound()
   }
 
-  const { data: cajeros, error: cajerosError } = await supabase
-    .from('profiles')
-    .select('id, nombre, email, rol')
-    .in('rol', ['cajero', 'visual', 'almacenista'])
-    .order('rol', { ascending: true })
-    .order('nombre', { ascending: true })
-
-  if (cajerosError) {
-    console.error('Error cargando cajeros:', cajerosError)
-    redirect('/error')
-  }
-
   const updateTaskWithId = updateTask.bind(null, id)
+  const cancelHref = task.area
+    ? `/areas/${AREA_SLUG[task.area] ?? 'caja'}`
+    : '/tasks'
 
   return (
     <div className="min-h-screen bg-cream">
@@ -47,10 +44,10 @@ export default async function EditTaskPage({
             CAJA TASKS
           </Link>
           <Link
-            href="/tasks"
+            href={cancelHref}
             className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 transition-colors"
           >
-            ← Tareas
+            ← Volver
           </Link>
         </div>
       </header>
@@ -69,8 +66,8 @@ export default async function EditTaskPage({
         </div>
 
         <TaskForm
-          cajeros={cajeros ?? []}
           task={task}
+          cancelHref={cancelHref}
           action={updateTaskWithId}
           submitLabel="Guardar cambios"
         />
