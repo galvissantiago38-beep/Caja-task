@@ -39,7 +39,7 @@ export default async function EditTaskPage({
   const updateTaskWithId = updateTask.bind(null, id)
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-cream">
       <header className="border-b border-stone-200">
         <div className="max-w-3xl mx-auto px-8 py-6 flex items-center justify-between">
           <Link href="/dashboard" className="font-serif text-xl tracking-wide">

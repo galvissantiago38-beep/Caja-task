@@ -14,6 +14,7 @@
   --color-foreground: var(--foreground);
   --color-muted: var(--muted);
   --color-soft: var(--soft);
+  --color-cream: #faf6ed;
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --font-sans: var(--font-geist-sans);

@@ -12,7 +12,7 @@ export default function AdminNav() {
   const pathname = usePathname()
 
   return (
-    <nav className="border-b border-stone-200 bg-white">
+    <nav className="border-b border-stone-200 bg-cream">
       <div className="max-w-6xl mx-auto px-8 flex gap-8">
         {ITEMS.map((item) => {
           const active = item.exact

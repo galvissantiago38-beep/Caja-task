@@ -2,7 +2,7 @@ import Link from 'next/link'
 
 export default function ErrorPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-6 py-16">
+    <div className="min-h-screen flex items-center justify-center bg-cream px-6 py-16">
       <div className="w-full max-w-sm text-center">
         <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-4">
           Error

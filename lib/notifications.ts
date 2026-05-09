@@ -8,6 +8,10 @@ const APP_URL =
   'https://caja-task.vercel.app'
 const EMAIL_FROM =
   process.env.EMAIL_FROM || 'Caja Tasks <onboarding@resend.dev>'
+// Si está definido, todas las notificaciones se mandan a este correo único
+// en vez de al correo de cada cajero asignado. Útil cuando no hay dominio
+// verificado en Resend y se quiere centralizar todo en una sola bandeja.
+const EMAIL_TO_OVERRIDE = process.env.NOTIFICATIONS_TO?.trim() || null
 
 type NotifKind = 'diaria_2h' | 'definida_24h' | 'lapso_apertura' | 'lapso_cierre'
 
@@ -101,7 +105,7 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
       })
       const result = await resend.emails.send({
         from: EMAIL_FROM,
-        to: email,
+        to: EMAIL_TO_OVERRIDE ?? email,
         subject,
         html,
       })

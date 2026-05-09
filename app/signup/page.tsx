@@ -3,7 +3,7 @@ import { signup } from '../auth/actions'
 
 export default function SignupPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-white px-6 py-16">
+    <div className="min-h-screen flex items-center justify-center bg-cream px-6 py-16">
       <div className="w-full max-w-sm">
         <div className="text-center mb-14">
           <h1 className="font-serif text-4xl text-stone-900 tracking-wide mb-3">

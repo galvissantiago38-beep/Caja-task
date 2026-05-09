@@ -11,7 +11,7 @@ export default async function AdminLayout({
   const { profile } = await requireAdmin()
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-cream">
       <header className="border-b border-stone-200">
         <div className="max-w-6xl mx-auto px-8 py-6 flex items-center justify-between">
           <div className="flex items-center gap-6">
