@@ -96,7 +96,7 @@ export default async function DashboardPage() {
             {greetingForBogota()}.
           </h1>
           <p className="text-sm text-stone-500 dark:text-stone-400 mt-4 max-w-md leading-relaxed">
-            Cada detalle cuenta. Selecciona un área para ver y gestionar sus
+            Crecer haciendo crecer. Selecciona un área para ver y gestionar sus
             tareas.
           </p>
         </div>
