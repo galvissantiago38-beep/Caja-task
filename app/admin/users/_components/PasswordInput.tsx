@@ -44,12 +44,12 @@ export default function PasswordInput({
           value={value}
           onChange={(e) => setValue(e.target.value)}
           placeholder={placeholder}
-          className="w-full px-3 py-2.5 pr-20 border border-stone-300 bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 font-mono transition-colors"
+          className="w-full px-3 py-2.5 pr-20 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:text-stone-500 focus:outline-none focus:border-stone-900 font-mono transition-colors"
         />
         <button
           type="button"
           onClick={() => setVisible((v) => !v)}
-          className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 px-2 py-1 transition-colors"
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-[10px] uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 px-2 py-1 transition-colors"
         >
           {visible ? 'Ocultar' : 'Ver'}
         </button>
@@ -63,7 +63,7 @@ export default function PasswordInput({
             setValue(pwd)
             setVisible(true)
           }}
-          className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
+          className="text-[11px] uppercase tracking-[0.18em] text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
         >
           Generar contraseña segura
         </button>

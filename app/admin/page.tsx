@@ -34,23 +34,23 @@ export default async function AdminHome() {
   return (
     <div className="space-y-14">
       <section>
-        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
           Bienvenido
         </p>
-        <h1 className="font-serif text-3xl sm:text-5xl text-stone-900 leading-tight">
+        <h1 className="font-serif text-3xl sm:text-5xl text-stone-900 dark:text-stone-100 leading-tight">
           {profile?.nombre ?? 'Admin'}
         </h1>
-        <p className="text-sm text-stone-600 mt-3">
+        <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500 mt-3">
           Resumen del equipo y accesos rápidos.
         </p>
       </section>
 
       <section>
-        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-5">
+        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-5">
           Equipo
         </p>
         <Stat label="Total" value={total} />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-stone-200 mt-px">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-stone-200 dark:bg-stone-800 mt-px">
           <Stat label="Admins" value={admins} />
           <Stat label="Cajeros" value={cajeros} />
           <Stat label="Visual" value={visuales} />
@@ -59,20 +59,20 @@ export default async function AdminHome() {
       </section>
 
       <section>
-        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-5">
+        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-5">
           Tareas
         </p>
-        <div className="grid grid-cols-2 gap-px bg-stone-200">
+        <div className="grid grid-cols-2 gap-px bg-stone-200 dark:bg-stone-800">
           <Stat label="Activas" value={tareasActivas ?? 0} />
           <Stat label="Archivadas" value={tareasInactivas ?? 0} muted />
         </div>
       </section>
 
-      <section className="border-t border-stone-200 pt-12">
-        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-5">
+      <section className="border-t border-stone-200 dark:border-stone-800 pt-12">
+        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-5">
           Accesos rápidos
         </p>
-        <div className="grid gap-px bg-stone-200 sm:grid-cols-3">
+        <div className="grid gap-px bg-stone-200 dark:bg-stone-800 sm:grid-cols-3">
           <ActionCard
             href="/admin/users/new"
             title="Nuevo usuario"
@@ -105,13 +105,13 @@ function Stat({
   muted?: boolean
 }) {
   return (
-    <div className="bg-white p-6">
-      <p className="text-[11px] uppercase tracking-[0.2em] text-stone-500 mb-3">
+    <div className="bg-white dark:bg-stone-900 p-6">
+      <p className="text-[11px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400 mb-3">
         {label}
       </p>
       <p
         className={`font-serif text-3xl sm:text-4xl ${
-          muted ? 'text-stone-400' : 'text-stone-900'
+          muted ? 'text-stone-400 dark:text-stone-500' : 'text-stone-900 dark:text-stone-100'
         }`}
       >
         {value}
@@ -136,13 +136,13 @@ function ActionCard({
       href={href}
       className={`block p-7 group transition-colors ${
         primary
-          ? 'bg-stone-900 text-white hover:bg-stone-700'
-          : 'bg-white text-stone-900 hover:bg-stone-50'
+          ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 hover:bg-stone-700 dark:hover:bg-stone-300'
+          : 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-800 dark:bg-stone-900'
       }`}
     >
       <p
         className={`text-[11px] uppercase tracking-[0.2em] mb-3 ${
-          primary ? 'text-stone-300' : 'text-stone-500'
+          primary ? 'text-stone-300 dark:text-stone-700' : 'text-stone-500 dark:text-stone-400'
         }`}
       >
         {primary ? '＋ Crear' : 'Acceso'}
@@ -150,7 +150,7 @@ function ActionCard({
       <p className="font-serif text-xl mb-2">{title}</p>
       <p
         className={`text-xs ${
-          primary ? 'text-stone-300' : 'text-stone-500'
+          primary ? 'text-stone-300 dark:text-stone-700' : 'text-stone-500 dark:text-stone-400'
         }`}
       >
         {description}

@@ -46,10 +46,10 @@ export default function PlazoChip({
 
   return (
     <div className="flex items-center gap-3 text-xs">
-      <span className="uppercase tracking-[0.18em] text-stone-900 text-[10px] font-medium">
+      <span className="uppercase tracking-[0.18em] text-stone-900 dark:text-stone-100 text-[10px] font-medium">
         {label}
       </span>
-      {detalle && <span className="text-stone-500">{detalle}</span>}
+      {detalle && <span className="text-stone-500 dark:text-stone-400">{detalle}</span>}
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ThemeToggle from '@/app/_components/ThemeToggle'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import PasswordInput from '../admin/users/_components/PasswordInput'
@@ -29,10 +30,10 @@ const ROL_LABEL: Record<string, string> = {
 }
 
 const inputCls =
-  'w-full px-3 py-2.5 border border-stone-300 bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 transition-colors'
+  'w-full px-3 py-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:text-stone-500 focus:outline-none focus:border-stone-900 transition-colors'
 
 const labelCls =
-  'block text-[11px] uppercase tracking-[0.18em] text-stone-700 mb-2'
+  'block text-[11px] uppercase tracking-[0.18em] text-stone-700 dark:text-stone-300 mb-2'
 
 export default async function ProfilePage({
   searchParams,
@@ -55,54 +56,57 @@ export default async function ProfilePage({
 
   return (
     <div className="min-h-screen bg-cream">
-      <header className="border-b border-stone-200">
+      <header className="border-b border-stone-200 dark:border-stone-800">
         <div className="max-w-3xl mx-auto px-4 sm:px-8 py-5 sm:py-6 flex items-center justify-between gap-3">
           <Link href="/dashboard" className="font-serif text-xl tracking-wide">
             TASKS
           </Link>
-          <Link
-            href="/dashboard"
-            className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 transition-colors"
-          >
-            ← Dashboard
-          </Link>
+          <div className="flex items-center gap-4 sm:gap-6">
+            <ThemeToggle />
+            <Link
+              href="/dashboard"
+              className="text-[11px] uppercase tracking-[0.18em] text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
+            >
+              ← Dashboard
+            </Link>
+          </div>
         </div>
       </header>
 
       <main className="max-w-3xl mx-auto px-4 sm:px-8 py-10 sm:py-14">
         <div className="mb-12">
-          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
             Cuenta
           </p>
-          <h1 className="font-serif text-3xl sm:text-4xl text-stone-900 mb-2">Mi perfil</h1>
-          <p className="text-sm text-stone-600">
+          <h1 className="font-serif text-3xl sm:text-4xl text-stone-900 dark:text-stone-100 mb-2">Mi perfil</h1>
+          <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500">
             Actualiza tus datos y tu contraseña.
           </p>
         </div>
 
         {sp.ok && (
-          <div className="border border-stone-300 bg-stone-50 px-5 py-4 text-sm text-stone-800 mb-8">
+          <div className="border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-5 py-4 text-sm text-stone-800 mb-8">
             {OK_MESSAGES[sp.ok] ?? OK_MESSAGES._default}
           </div>
         )}
         {sp.error && (
-          <div className="border border-stone-900 px-5 py-4 text-sm text-stone-900 mb-8">
+          <div className="border border-stone-900 px-5 py-4 text-sm text-stone-900 dark:text-stone-100 mb-8">
             {ERROR_MESSAGES[sp.error] ?? ERROR_MESSAGES._default}
           </div>
         )}
 
-        <section className="border-t border-stone-200 pt-10 mb-14">
+        <section className="border-t border-stone-200 dark:border-stone-800 pt-10 mb-14">
           <div className="flex items-center gap-5 mb-8">
-            <div className="w-14 h-14 border border-stone-300 flex items-center justify-center font-serif text-xl sm:text-2xl text-stone-900">
+            <div className="w-14 h-14 border border-stone-300 dark:border-stone-700 flex items-center justify-center font-serif text-xl sm:text-2xl text-stone-900 dark:text-stone-100">
               {(profile?.nombre ?? user.email ?? '?').charAt(0).toUpperCase()}
             </div>
             <div className="flex-1">
-              <p className="font-serif text-xl sm:text-2xl text-stone-900">
+              <p className="font-serif text-xl sm:text-2xl text-stone-900 dark:text-stone-100">
                 {profile?.nombre ?? 'Sin nombre'}
               </p>
-              <p className="text-sm text-stone-500">{user.email}</p>
+              <p className="text-sm text-stone-500 dark:text-stone-400">{user.email}</p>
             </div>
-            <span className="text-[11px] uppercase tracking-[0.2em] text-stone-700 border border-stone-300 px-3 py-1">
+            <span className="text-[11px] uppercase tracking-[0.2em] text-stone-700 dark:text-stone-300 border border-stone-300 dark:border-stone-700 px-3 py-1">
               {ROL_LABEL[profile?.rol ?? ''] ?? 'Usuario'}
             </span>
           </div>
@@ -128,27 +132,27 @@ export default async function ProfilePage({
                 type="email"
                 value={user.email ?? ''}
                 disabled
-                className={`${inputCls} bg-stone-50 text-stone-500`}
+                className={`${inputCls} bg-stone-50 dark:bg-stone-900 text-stone-500 dark:text-stone-400`}
               />
-              <p className="text-xs text-stone-500 mt-2">
+              <p className="text-xs text-stone-500 dark:text-stone-400 mt-2">
                 El correo no se puede cambiar desde aquí.
               </p>
             </div>
 
-            <div className="flex justify-end pt-4 border-t border-stone-200">
+            <div className="flex justify-end pt-4 border-t border-stone-200 dark:border-stone-800">
               <SubmitButton label="Guardar cambios" pendingLabel="Guardando" />
             </div>
           </form>
         </section>
 
-        <section className="border-t border-stone-200 pt-10">
-          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+        <section className="border-t border-stone-200 dark:border-stone-800 pt-10">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
             Seguridad
           </p>
-          <h2 className="font-serif text-xl sm:text-2xl text-stone-900 mb-2">
+          <h2 className="font-serif text-xl sm:text-2xl text-stone-900 dark:text-stone-100 mb-2">
             Cambiar contraseña
           </h2>
-          <p className="text-sm text-stone-600 mb-8">
+          <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500 mb-8">
             Verifica tu contraseña actual y elige una nueva.
           </p>
 
@@ -165,10 +169,10 @@ export default async function ProfilePage({
                 Nueva contraseña
               </label>
               <PasswordInput name="nueva" id="nueva" required showGenerate />
-              <p className="text-xs text-stone-500 mt-2">Mínimo 6 caracteres.</p>
+              <p className="text-xs text-stone-500 dark:text-stone-400 mt-2">Mínimo 6 caracteres.</p>
             </div>
 
-            <div className="flex justify-end pt-4 border-t border-stone-200">
+            <div className="flex justify-end pt-4 border-t border-stone-200 dark:border-stone-800">
               <SubmitButton
                 label="Actualizar contraseña"
                 pendingLabel="Actualizando"

@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ThemeToggle from '@/app/_components/ThemeToggle'
 import { notFound, redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { addDays, bucketize, ymdInBogota, type Bucket } from '@/lib/dates'
@@ -13,9 +14,9 @@ const AREA_MAP: Record<string, { rol: string; label: string }> = {
 }
 
 const PRIORIDAD_CLASSES: Record<string, string> = {
-  alta: 'text-stone-900 font-medium',
-  media: 'text-stone-600',
-  baja: 'text-stone-400',
+  alta: 'text-stone-900 dark:text-stone-100 font-medium',
+  media: 'text-stone-600 dark:text-stone-400 dark:text-stone-500',
+  baja: 'text-stone-400 dark:text-stone-500',
 }
 
 const BUCKET_META: Record<Bucket, { label: string }> = {
@@ -121,30 +122,33 @@ export default async function AreaPage({
 
   return (
     <div className="min-h-screen bg-cream">
-      <header className="border-b border-stone-200">
+      <header className="border-b border-stone-200 dark:border-stone-800">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-5 sm:py-6 flex items-center justify-between gap-3">
           <Link href="/dashboard" className="font-serif text-xl tracking-wide">
             TASKS
           </Link>
-          <Link
-            href="/dashboard"
-            className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 transition-colors"
-          >
-            ← Áreas
-          </Link>
+          <div className="flex items-center gap-4 sm:gap-6">
+            <ThemeToggle />
+            <Link
+              href="/dashboard"
+              className="text-[11px] uppercase tracking-[0.18em] text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
+            >
+              ← Áreas
+            </Link>
+          </div>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-8 py-10 sm:py-14">
         <div className="flex items-end justify-between mb-12 flex-wrap gap-6">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
               Área
             </p>
-            <h1 className="font-serif text-3xl sm:text-5xl text-stone-900 leading-tight">
+            <h1 className="font-serif text-3xl sm:text-5xl text-stone-900 dark:text-stone-100 leading-tight">
               {meta.label}
             </h1>
-            <p className="text-sm text-stone-600 mt-3">
+            <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500 mt-3">
               {instances.length === 0
                 ? 'Sin tareas pendientes en esta área.'
                 : `${instances.length} ${
@@ -154,18 +158,18 @@ export default async function AreaPage({
           </div>
           <Link
             href={`/tasks/new?area=${meta.rol}`}
-            className="bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
+            className="bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors"
           >
             + Nueva tarea
           </Link>
         </div>
 
         {instances.length === 0 ? (
-          <div className="border-t border-stone-200 pt-20 text-center">
-            <p className="text-base text-stone-700 mb-2">
+          <div className="border-t border-stone-200 dark:border-stone-800 pt-20 text-center">
+            <p className="text-base text-stone-700 dark:text-stone-300 mb-2">
               Todo al día en {meta.label}.
             </p>
-            <p className="text-sm text-stone-500">
+            <p className="text-sm text-stone-500 dark:text-stone-400">
               Crea una tarea para empezar.
             </p>
           </div>
@@ -177,32 +181,32 @@ export default async function AreaPage({
               const bm = BUCKET_META[b]
               return (
                 <section key={b}>
-                  <div className="flex items-end justify-between mb-6 border-b border-stone-200 pb-3">
-                    <h2 className="font-serif text-xl sm:text-2xl text-stone-900">
+                  <div className="flex items-end justify-between mb-6 border-b border-stone-200 dark:border-stone-800 pb-3">
+                    <h2 className="font-serif text-xl sm:text-2xl text-stone-900 dark:text-stone-100">
                       {bm.label}
                     </h2>
-                    <span className="text-[11px] uppercase tracking-[0.2em] text-stone-500">
+                    <span className="text-[11px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">
                       {items.length}
                     </span>
                   </div>
-                  <div className="grid gap-px bg-stone-200 sm:grid-cols-2">
+                  <div className="grid gap-px bg-stone-200 dark:bg-stone-800 sm:grid-cols-2">
                     {items.map((inst) => (
-                      <article key={inst.id} className="bg-white p-7">
+                      <article key={inst.id} className="bg-white dark:bg-stone-900 p-7">
                         <div className="flex items-start justify-between gap-4 mb-3">
-                          <h3 className="font-serif text-xl text-stone-900 leading-tight">
+                          <h3 className="font-serif text-xl text-stone-900 dark:text-stone-100 leading-tight">
                             {inst.task!.titulo}
                           </h3>
                           <span
                             className={`shrink-0 text-[10px] uppercase tracking-widest ${
                               PRIORIDAD_CLASSES[inst.task!.prioridad] ??
-                              'text-stone-500'
+                              'text-stone-500 dark:text-stone-400'
                             }`}
                           >
                             {inst.task!.prioridad}
                           </span>
                         </div>
                         {inst.task!.descripcion && (
-                          <p className="text-sm text-stone-600 mb-4 leading-relaxed">
+                          <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500 mb-4 leading-relaxed">
                             {inst.task!.descripcion}
                           </p>
                         )}
@@ -227,19 +231,19 @@ export default async function AreaPage({
         )}
 
         {completadas.length > 0 && (
-          <section className="border-t border-stone-200 pt-14 mt-16">
+          <section className="border-t border-stone-200 dark:border-stone-800 pt-14 mt-16">
             <div className="flex items-end justify-between mb-6">
               <div>
-                <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+                <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
                   Histórico reciente
                 </p>
-                <h2 className="font-serif text-2xl sm:text-3xl text-stone-900">
+                <h2 className="font-serif text-2xl sm:text-3xl text-stone-900 dark:text-stone-100">
                   Completadas
                 </h2>
               </div>
               <Link
                 href={`/tasks/historico?area=${meta.rol}`}
-                className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
+                className="text-[11px] uppercase tracking-[0.18em] text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
               >
                 Ver todo →
               </Link>
@@ -248,16 +252,16 @@ export default async function AreaPage({
           </section>
         )}
 
-        <div className="border-t border-stone-200 pt-10 mt-16 flex flex-wrap gap-6 text-[11px] uppercase tracking-[0.18em]">
+        <div className="border-t border-stone-200 dark:border-stone-800 pt-10 mt-16 flex flex-wrap gap-6 text-[11px] uppercase tracking-[0.18em]">
           <Link
             href={`/tasks?area=${meta.rol}`}
-            className="text-stone-700 hover:text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
+            className="text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
           >
             Ver tareas activas →
           </Link>
           <Link
             href={`/tasks/historico?area=${meta.rol}`}
-            className="text-stone-700 hover:text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
+            className="text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
           >
             Histórico completo →
           </Link>
@@ -311,29 +315,29 @@ function CompletadasList({
         return (
           <div key={fecha}>
             <div className="flex items-center gap-4 mb-3">
-              <span className="text-[10px] uppercase tracking-[0.25em] text-stone-700 font-medium">
+              <span className="text-[10px] uppercase tracking-[0.25em] text-stone-700 dark:text-stone-300 font-medium">
                 {labelForDate(fecha)}
               </span>
-              <span className="flex-1 h-px bg-stone-200" />
-              <span className="text-[10px] uppercase tracking-[0.2em] text-stone-500">
+              <span className="flex-1 h-px bg-stone-200 dark:bg-stone-800" />
+              <span className="text-[10px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400">
                 {day.length}
               </span>
             </div>
             <ul className="divide-y divide-stone-200">
               {day.map((inst) => (
                 <li key={inst.id} className="py-4 flex items-start gap-4">
-                  <span className="text-stone-400 text-sm mt-0.5">✓</span>
+                  <span className="text-stone-400 dark:text-stone-500 text-sm mt-0.5">✓</span>
                   <div className="flex-1 min-w-0">
-                    <p className="text-stone-900 line-through decoration-stone-300">
+                    <p className="text-stone-900 dark:text-stone-100 line-through decoration-stone-300">
                       {inst.task!.titulo}
                     </p>
                     {inst.notas && (
-                      <p className="text-sm text-stone-500 mt-1">
+                      <p className="text-sm text-stone-500 dark:text-stone-400 mt-1">
                         {inst.notas}
                       </p>
                     )}
                   </div>
-                  <span className="text-[11px] text-stone-500 shrink-0">
+                  <span className="text-[11px] text-stone-500 dark:text-stone-400 shrink-0">
                     {formatTime(inst.completada_en)}
                   </span>
                 </li>

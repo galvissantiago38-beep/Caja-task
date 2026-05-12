@@ -37,7 +37,7 @@ export default function RolePicker({
   const [selected, setSelected] = useState<Rol>(defaultValue)
 
   return (
-    <div className="grid gap-px bg-stone-200">
+    <div className="grid gap-px bg-stone-200 dark:bg-stone-800">
       {OPTIONS.map((opt) => {
         const active = selected === opt.value
         return (
@@ -45,8 +45,8 @@ export default function RolePicker({
             key={opt.value}
             className={`cursor-pointer p-5 transition-colors ${
               active
-                ? 'bg-stone-900 text-white'
-                : 'bg-white text-stone-900 hover:bg-stone-50'
+                ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
+                : 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-800 dark:bg-stone-900'
             }`}
           >
             <input
@@ -62,14 +62,14 @@ export default function RolePicker({
                 {opt.label}
               </span>
               {active && (
-                <span className="text-[10px] uppercase tracking-[0.2em] text-stone-300">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-stone-300 dark:text-stone-700">
                   Seleccionado
                 </span>
               )}
             </div>
             <p
               className={`text-xs mt-2 leading-relaxed ${
-                active ? 'text-stone-300' : 'text-stone-500'
+                active ? 'text-stone-300 dark:text-stone-700' : 'text-stone-500 dark:text-stone-400'
               }`}
             >
               {opt.desc}

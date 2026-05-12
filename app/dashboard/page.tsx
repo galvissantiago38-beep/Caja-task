@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { addDays, ymdInBogota } from '@/lib/dates'
+import ThemeToggle from '../_components/ThemeToggle'
 import { logout } from '../auth/actions'
 
 type InstanceLite = {
@@ -61,22 +62,23 @@ export default async function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-cream">
-      <header className="border-b border-stone-200">
+      <header className="border-b border-stone-200 dark:border-stone-800">
         <div className="max-w-5xl mx-auto px-4 sm:px-8 py-5 sm:py-6 flex items-center justify-between gap-3">
           <Link href="/dashboard" className="font-serif text-xl tracking-wide">
             TASKS
           </Link>
           <nav className="flex items-center gap-4 sm:gap-8">
+            <ThemeToggle />
             <Link
               href="/profile"
-              className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 transition-colors"
+              className="text-[11px] uppercase tracking-[0.18em] text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
             >
               Mi perfil
             </Link>
             <form>
               <button
                 formAction={logout}
-                className="text-[11px] uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 transition-colors"
+                className="text-[11px] uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
               >
                 Salir
               </button>
@@ -87,23 +89,23 @@ export default async function DashboardPage() {
 
       <main className="max-w-5xl mx-auto px-4 sm:px-8 py-10 sm:py-14">
         <div className="mb-14">
-          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
             Massimo Dutti · Calle 82
           </p>
-          <h1 className="font-serif text-3xl sm:text-5xl text-stone-900 leading-tight italic">
+          <h1 className="font-serif text-3xl sm:text-5xl text-stone-900 dark:text-stone-100 leading-tight italic">
             {greetingForBogota()}.
           </h1>
-          <p className="text-sm text-stone-500 mt-4 max-w-md leading-relaxed">
+          <p className="text-sm text-stone-500 dark:text-stone-400 mt-4 max-w-md leading-relaxed">
             Cada detalle cuenta. Selecciona un área para ver y gestionar sus
             tareas.
           </p>
         </div>
 
         <section>
-          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-5">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-5">
             Áreas
           </p>
-          <div className="grid gap-px bg-stone-200 sm:grid-cols-3">
+          <div className="grid gap-px bg-stone-200 dark:bg-stone-800 sm:grid-cols-3">
             {AREAS.map((a) => {
               const c = countsByArea[a.key] ?? {
                 total: 0,
@@ -123,11 +125,11 @@ export default async function DashboardPage() {
         </section>
 
         {totalPending > 0 && (
-          <section className="border-t border-stone-200 pt-12 mt-14">
-            <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-5">
+          <section className="border-t border-stone-200 dark:border-stone-800 pt-12 mt-14">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-5">
               Resumen general
             </p>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-stone-200">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-stone-200 dark:bg-stone-800">
               <Stat label="Pendientes" value={totalPending} highlight />
               <Stat label="Vencidas" value={totalVencidas} />
               <Stat label="Hoy" value={totalHoy} />
@@ -137,29 +139,29 @@ export default async function DashboardPage() {
         )}
 
         {profile?.rol === 'admin' && (
-          <section className="border-t border-stone-200 pt-14 mt-14">
-            <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+          <section className="border-t border-stone-200 dark:border-stone-800 pt-14 mt-14">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
               Administración
             </p>
             <div className="flex items-end justify-between flex-wrap gap-6">
               <div className="max-w-md">
-                <h2 className="font-serif text-xl sm:text-2xl text-stone-900 mb-2">
+                <h2 className="font-serif text-xl sm:text-2xl text-stone-900 dark:text-stone-100 mb-2">
                   Panel de administración
                 </h2>
-                <p className="text-sm text-stone-600 leading-relaxed">
+                <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500 leading-relaxed">
                   Gestionar el perfil compartido, tareas activas e histórico.
                 </p>
               </div>
               <div className="flex gap-3 flex-wrap">
                 <Link
                   href="/admin"
-                  className="bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
+                  className="bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors"
                 >
                   Ir al panel
                 </Link>
                 <Link
                   href="/tasks/historico"
-                  className="border border-stone-900 text-stone-900 px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-50 transition-colors"
+                  className="border border-stone-900 dark:border-stone-100 text-stone-900 dark:text-stone-100 px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-50 dark:hover:bg-stone-800 dark:bg-stone-900 transition-colors"
                 >
                   Histórico
                 </Link>
@@ -209,33 +211,33 @@ function AreaCard({
   return (
     <Link
       href={href}
-      className="bg-white p-8 hover:bg-stone-50 transition-colors group"
+      className="bg-white dark:bg-stone-900 p-8 hover:bg-stone-50 dark:hover:bg-stone-800 dark:bg-stone-900 transition-colors group"
     >
-      <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-4">
+      <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-4">
         Área
       </p>
-      <h3 className="font-serif text-2xl sm:text-3xl text-stone-900 mb-6 group-hover:underline underline-offset-4 decoration-1">
+      <h3 className="font-serif text-2xl sm:text-3xl text-stone-900 dark:text-stone-100 mb-6 group-hover:underline underline-offset-4 decoration-1">
         {label}
       </h3>
       <div className="space-y-1">
-        <p className="text-sm text-stone-700">
-          <span className="font-serif text-xl sm:text-2xl text-stone-900 mr-1">
+        <p className="text-sm text-stone-700 dark:text-stone-300">
+          <span className="font-serif text-xl sm:text-2xl text-stone-900 dark:text-stone-100 mr-1">
             {counts.total}
           </span>
           {counts.total === 1 ? 'tarea pendiente' : 'tareas pendientes'}
         </p>
         {counts.vencidas > 0 && (
-          <p className="text-xs text-stone-900 font-medium">
+          <p className="text-xs text-stone-900 dark:text-stone-100 font-medium">
             {counts.vencidas} vencida{counts.vencidas !== 1 ? 's' : ''}
           </p>
         )}
         {counts.hoy > 0 && (
-          <p className="text-xs text-stone-700">
+          <p className="text-xs text-stone-700 dark:text-stone-300">
             {counts.hoy} para hoy
           </p>
         )}
       </div>
-      <p className="text-[11px] uppercase tracking-[0.18em] text-stone-700 mt-8 group-hover:text-stone-900 transition-colors">
+      <p className="text-[11px] uppercase tracking-[0.18em] text-stone-700 dark:text-stone-300 mt-8 group-hover:text-stone-900 dark:hover:text-stone-100 transition-colors">
         Entrar →
       </p>
     </Link>
@@ -254,8 +256,8 @@ function Stat({
   const muted = value === 0 && !highlight
   return (
     <div
-      className={`bg-white p-6 ${
-        muted ? 'text-stone-300' : highlight ? 'text-stone-900' : 'text-stone-700'
+      className={`bg-white dark:bg-stone-900 p-6 ${
+        muted ? 'text-stone-300 dark:text-stone-700' : highlight ? 'text-stone-900 dark:text-stone-100' : 'text-stone-700 dark:text-stone-300'
       }`}
     >
       <p className="text-[11px] uppercase tracking-[0.2em] mb-3">{label}</p>

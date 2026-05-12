@@ -15,7 +15,7 @@ function SubmitButton({ disabled }: { disabled?: boolean }) {
     <button
       type="submit"
       disabled={disabled || pending}
-      className="text-[11px] uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 underline underline-offset-4 decoration-stone-200 hover:decoration-stone-900 transition-colors disabled:text-stone-300 disabled:no-underline disabled:cursor-not-allowed"
+      className="text-[11px] uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 underline underline-offset-4 decoration-stone-200 hover:decoration-stone-900 transition-colors disabled:text-stone-300 dark:text-stone-700 disabled:no-underline disabled:cursor-not-allowed"
     >
       {pending ? 'Eliminando' : 'Eliminar'}
     </button>

@@ -13,7 +13,7 @@ function SubmitButton() {
     <button
       type="submit"
       disabled={pending}
-      className="bg-stone-900 text-white px-6 py-2.5 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
+      className="bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 px-6 py-2.5 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors disabled:opacity-60 disabled:cursor-not-allowed inline-flex items-center gap-2"
     >
       {pending && (
         <span className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin" />
@@ -31,7 +31,7 @@ export default function CompletarBoton({ action }: Props) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="bg-stone-900 text-white px-6 py-2.5 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
+        className="bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 px-6 py-2.5 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors"
       >
         Marcar hecha
       </button>
@@ -44,14 +44,14 @@ export default function CompletarBoton({ action }: Props) {
         name="notas"
         rows={2}
         placeholder="Notas (opcional)"
-        className="w-full text-sm px-3 py-2.5 border border-stone-300 bg-white text-stone-900 focus:outline-none focus:border-stone-900 transition-colors"
+        className="w-full text-sm px-3 py-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:border-stone-900 transition-colors"
       />
       <div className="flex items-center gap-3">
         <SubmitButton />
         <button
           type="button"
           onClick={() => setOpen(false)}
-          className="text-[11px] uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 transition-colors"
+          className="text-[11px] uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
         >
           Cancelar
         </button>

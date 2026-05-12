@@ -4,13 +4,13 @@ export default function ErrorPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-cream px-6 py-16">
       <div className="w-full max-w-sm text-center">
-        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-4">
+        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-4">
           Error
         </p>
-        <h1 className="font-serif text-2xl sm:text-3xl text-stone-900 mb-3">
+        <h1 className="font-serif text-2xl sm:text-3xl text-stone-900 dark:text-stone-100 mb-3">
           Algo salió mal
         </h1>
-        <p className="text-sm text-stone-600 mb-10 leading-relaxed">
+        <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500 mb-10 leading-relaxed">
           Hubo un problema al procesar tu solicitud. Verifica tus datos e
           intenta de nuevo.
         </p>
@@ -18,13 +18,13 @@ export default function ErrorPage() {
         <div className="flex flex-col gap-3">
           <Link
             href="/login"
-            className="w-full bg-stone-900 text-white py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
+            className="w-full bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors"
           >
             Volver a iniciar sesión
           </Link>
           <Link
             href="/signup"
-            className="w-full border border-stone-300 text-stone-900 py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:bg-stone-50 transition-colors"
+            className="w-full border border-stone-300 dark:border-stone-700 text-stone-900 dark:text-stone-100 py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:bg-stone-50 dark:hover:bg-stone-800 dark:bg-stone-900 transition-colors"
           >
             Crear cuenta nueva
           </Link>

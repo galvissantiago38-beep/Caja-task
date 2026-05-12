@@ -12,16 +12,16 @@ const LABELS: Record<string, string> = {
 }
 
 const STYLES: Record<string, string> = {
-  admin: 'border-stone-900 text-stone-900',
-  lider: 'border-stone-500 text-stone-700',
-  cajero: 'border-stone-300 text-stone-500',
-  visual: 'border-stone-300 text-stone-500',
-  almacenista: 'border-stone-300 text-stone-500',
+  admin: 'border-stone-900 text-stone-900 dark:text-stone-100',
+  lider: 'border-stone-500 text-stone-700 dark:text-stone-300',
+  cajero: 'border-stone-300 dark:border-stone-700 text-stone-500 dark:text-stone-400',
+  visual: 'border-stone-300 dark:border-stone-700 text-stone-500 dark:text-stone-400',
+  almacenista: 'border-stone-300 dark:border-stone-700 text-stone-500 dark:text-stone-400',
 }
 
 export default function RoleBadge({ rol, size = 'md' }: RoleBadgeProps) {
   const label = LABELS[rol ?? ''] ?? rol ?? '—'
-  const style = STYLES[rol ?? ''] ?? 'border-stone-200 text-stone-500'
+  const style = STYLES[rol ?? ''] ?? 'border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400'
   const sizeCls = size === 'sm' ? 'text-[9px] px-1.5 py-0.5' : 'text-[10px] px-2 py-0.5'
   return (
     <span

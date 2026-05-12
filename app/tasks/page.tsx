@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import ThemeToggle from '@/app/_components/ThemeToggle'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { deleteTask } from './actions'
@@ -7,9 +8,9 @@ import PlazoChip from './_components/PlazoChip'
 import TaskFilterBar from './_components/TaskFilterBar'
 
 const PRIORIDAD_CLASSES: Record<string, string> = {
-  alta: 'text-stone-900 font-medium',
-  media: 'text-stone-600',
-  baja: 'text-stone-400',
+  alta: 'text-stone-900 dark:text-stone-100 font-medium',
+  media: 'text-stone-600 dark:text-stone-400 dark:text-stone-500',
+  baja: 'text-stone-400 dark:text-stone-500',
 }
 
 const AREA_LABEL: Record<string, string> = {
@@ -81,44 +82,47 @@ export default async function TasksPage({
 
   return (
     <div className="min-h-screen bg-cream">
-      <header className="border-b border-stone-200">
+      <header className="border-b border-stone-200 dark:border-stone-800">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 py-5 sm:py-6 flex items-center justify-between gap-3">
           <Link href="/dashboard" className="font-serif text-xl tracking-wide">
             TASKS
           </Link>
-          <Link
-            href="/dashboard"
-            className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 transition-colors"
-          >
-            ← Áreas
-          </Link>
+          <div className="flex items-center gap-4 sm:gap-6">
+            <ThemeToggle />
+            <Link
+              href="/dashboard"
+              className="text-[11px] uppercase tracking-[0.18em] text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
+            >
+              ← Áreas
+            </Link>
+          </div>
         </div>
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-8 py-10 sm:py-14">
         <div className="flex items-end justify-between mb-12 flex-wrap gap-6">
           <div>
-            <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+            <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
               Tareas
             </p>
-            <h1 className="font-serif text-3xl sm:text-4xl text-stone-900 mb-2">
+            <h1 className="font-serif text-3xl sm:text-4xl text-stone-900 dark:text-stone-100 mb-2">
               Tareas activas
             </h1>
-            <p className="text-sm text-stone-600 max-w-md">
+            <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500 max-w-md">
               Gestiona las tareas registradas. Para crear o completar una tarea
               concreta entra al área correspondiente.
             </p>
           </div>
           <Link
             href="/tasks/new"
-            className="bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
+            className="bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors"
           >
             Nueva tarea
           </Link>
         </div>
 
         {sp.error && (
-          <div className="mb-8 border border-stone-300 bg-stone-50 px-5 py-4 text-sm text-stone-800">
+          <div className="mb-8 border border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 px-5 py-4 text-sm text-stone-800">
             {sp.error === 'no-completada'
               ? 'No se pudo marcar la tarea como hecha.'
               : 'Algo salió mal.'}
@@ -126,17 +130,17 @@ export default async function TasksPage({
         )}
 
         {lista.length === 0 && !tieneFiltros ? (
-          <div className="border-t border-stone-200 pt-20 text-center">
-            <h2 className="font-serif text-xl sm:text-2xl text-stone-900 mb-3">
+          <div className="border-t border-stone-200 dark:border-stone-800 pt-20 text-center">
+            <h2 className="font-serif text-xl sm:text-2xl text-stone-900 dark:text-stone-100 mb-3">
               Aún no hay tareas creadas
             </h2>
-            <p className="text-sm text-stone-600 mb-8">
+            <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500 mb-8">
               Empieza por entrar a un área desde el dashboard y crea su primera
               tarea.
             </p>
             <Link
               href="/dashboard"
-              className="inline-block bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
+              className="inline-block bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors"
             >
               Ir a áreas
             </Link>
@@ -146,19 +150,19 @@ export default async function TasksPage({
             <TaskFilterBar />
 
             {lista.length === 0 ? (
-              <div className="border-t border-stone-200 pt-20 text-center">
-                <h3 className="font-serif text-xl sm:text-2xl text-stone-900 mb-2">
+              <div className="border-t border-stone-200 dark:border-stone-800 pt-20 text-center">
+                <h3 className="font-serif text-xl sm:text-2xl text-stone-900 dark:text-stone-100 mb-2">
                   Sin resultados
                 </h3>
-                <p className="text-sm text-stone-600">
+                <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500">
                   Prueba con otra búsqueda o quita los filtros.
                 </p>
               </div>
             ) : (
-              <div className="border-t border-stone-200 overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+              <div className="border-t border-stone-200 dark:border-stone-800 overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
                 <table className="w-full text-left min-w-[720px]">
                   <thead>
-                    <tr className="border-b border-stone-200 text-[10px] uppercase tracking-[0.18em] text-stone-500">
+                    <tr className="border-b border-stone-200 dark:border-stone-800 text-[10px] uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400">
                       <th className="py-4 pr-4 font-medium">Tarea</th>
                       <th className="py-4 pr-4 font-medium">Área</th>
                       <th className="py-4 pr-4 font-medium">Plazo</th>
@@ -172,11 +176,11 @@ export default async function TasksPage({
                     {lista.map((t) => (
                       <tr
                         key={t.id}
-                        className="border-b border-stone-100 hover:bg-stone-50/50 transition-colors"
+                        className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors"
                       >
-                        <td className="py-5 pr-4 text-stone-900">{t.titulo}</td>
+                        <td className="py-5 pr-4 text-stone-900 dark:text-stone-100">{t.titulo}</td>
                         <td className="py-5 pr-4">
-                          <span className="text-[11px] uppercase tracking-[0.18em] text-stone-700">
+                          <span className="text-[11px] uppercase tracking-[0.18em] text-stone-700 dark:text-stone-300">
                             {AREA_LABEL[t.area ?? ''] ?? '—'}
                           </span>
                         </td>
@@ -191,7 +195,7 @@ export default async function TasksPage({
                         <td className="py-5 pr-4">
                           <span
                             className={`text-[11px] uppercase tracking-widest ${
-                              PRIORIDAD_CLASSES[t.prioridad] ?? 'text-stone-500'
+                              PRIORIDAD_CLASSES[t.prioridad] ?? 'text-stone-500 dark:text-stone-400'
                             }`}
                           >
                             {t.prioridad}
@@ -201,7 +205,7 @@ export default async function TasksPage({
                           <div className="flex items-center justify-end gap-6">
                             <Link
                               href={`/tasks/${t.id}/edit`}
-                              className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
+                              className="text-[11px] uppercase tracking-[0.18em] text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
                             >
                               Editar
                             </Link>

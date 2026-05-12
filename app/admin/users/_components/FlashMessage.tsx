@@ -7,8 +7,8 @@ type Props = {
 }
 
 const STYLES: Record<FlashKind, string> = {
-  ok: 'border-stone-300 bg-stone-50 text-stone-800',
-  error: 'border-stone-900 text-stone-900',
+  ok: 'border-stone-300 dark:border-stone-700 bg-stone-50 dark:bg-stone-900 text-stone-800',
+  error: 'border-stone-900 text-stone-900 dark:text-stone-100',
 }
 
 export default function FlashMessage({ kind, code, messages }: Props) {

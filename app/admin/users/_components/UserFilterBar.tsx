@@ -54,7 +54,7 @@ export default function UserFilterBar() {
           type="search"
           defaultValue={currentQ}
           placeholder="Buscar por nombre o correo"
-          className="w-full px-0 py-2 border-0 border-b border-stone-300 bg-transparent text-stone-900 placeholder:text-stone-400 text-sm focus:outline-none focus:border-stone-900 transition-colors"
+          className="w-full px-0 py-2 border-0 border-b border-stone-300 dark:border-stone-700 bg-transparent text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:text-stone-500 text-sm focus:outline-none focus:border-stone-900 transition-colors"
         />
       </form>
 
@@ -67,8 +67,8 @@ export default function UserFilterBar() {
               href={buildHref({ rol: f.value })}
               className={`px-3 py-1.5 text-[11px] uppercase tracking-[0.18em] transition-colors ${
                 active
-                  ? 'text-stone-900 underline underline-offset-4 decoration-stone-900'
-                  : 'text-stone-500 hover:text-stone-900'
+                  ? 'text-stone-900 dark:text-stone-100 underline underline-offset-4 decoration-stone-900'
+                  : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
               }`}
             >
               {f.label}

@@ -61,18 +61,18 @@ export default async function UsersPage({
     <div className="space-y-10">
       <div className="flex items-end justify-between flex-wrap gap-6">
         <div>
-          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
             Equipo
           </p>
-          <h1 className="font-serif text-3xl sm:text-4xl text-stone-900 mb-2">Usuarios</h1>
-          <p className="text-sm text-stone-600">
+          <h1 className="font-serif text-3xl sm:text-4xl text-stone-900 dark:text-stone-100 mb-2">Usuarios</h1>
+          <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500">
             {lista.length === 1 ? '1 usuario' : `${lista.length} usuarios`} en
             el sistema
           </p>
         </div>
         <Link
           href="/admin/users/new"
-          className="bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
+          className="bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors"
         >
           Nuevo usuario
         </Link>
@@ -90,10 +90,10 @@ export default async function UsersPage({
       {lista.length === 0 ? (
         <EmptyState filtered={!!(sp.q || sp.rol)} />
       ) : (
-        <div className="border-t border-stone-200 overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+        <div className="border-t border-stone-200 dark:border-stone-800 overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
           <table className="w-full text-left min-w-[560px]">
             <thead>
-              <tr className="border-b border-stone-200 text-[10px] uppercase tracking-[0.18em] text-stone-500">
+              <tr className="border-b border-stone-200 dark:border-stone-800 text-[10px] uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400">
                 <th className="py-4 pr-4 font-medium">Usuario</th>
                 <th className="py-4 pr-4 font-medium">Rol</th>
                 <th className="py-4 pr-4 font-medium text-right">Acciones</th>
@@ -107,25 +107,25 @@ export default async function UsersPage({
                 return (
                   <tr
                     key={u.id}
-                    className="border-b border-stone-100 hover:bg-stone-50/50 transition-colors"
+                    className="border-b border-stone-100 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-800/50 transition-colors"
                   >
                     <td className="py-5 pr-4">
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 border border-stone-300 flex items-center justify-center font-serif text-lg text-stone-900">
+                        <div className="w-10 h-10 border border-stone-300 dark:border-stone-700 flex items-center justify-center font-serif text-lg text-stone-900 dark:text-stone-100">
                           {inicial}
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-3">
-                            <p className="text-stone-900 truncate">
+                            <p className="text-stone-900 dark:text-stone-100 truncate">
                               {u.nombre || 'Sin nombre'}
                             </p>
                             {eresTu && (
-                              <span className="text-[9px] uppercase tracking-[0.2em] text-stone-500 border border-stone-300 px-1.5 py-0.5">
+                              <span className="text-[9px] uppercase tracking-[0.2em] text-stone-500 dark:text-stone-400 border border-stone-300 dark:border-stone-700 px-1.5 py-0.5">
                                 Tú
                               </span>
                             )}
                           </div>
-                          <p className="text-sm text-stone-500 truncate">
+                          <p className="text-sm text-stone-500 dark:text-stone-400 truncate">
                             {u.email ?? '—'}
                           </p>
                         </div>
@@ -138,7 +138,7 @@ export default async function UsersPage({
                       <div className="flex items-center justify-end gap-6">
                         <Link
                           href={`/admin/users/${u.id}/edit`}
-                          className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
+                          className="text-[11px] uppercase tracking-[0.18em] text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
                         >
                           Editar
                         </Link>
@@ -165,11 +165,11 @@ export default async function UsersPage({
 
 function EmptyState({ filtered }: { filtered: boolean }) {
   return (
-    <div className="border-t border-stone-200 pt-20 text-center">
-      <h3 className="font-serif text-xl sm:text-2xl text-stone-900 mb-2">
+    <div className="border-t border-stone-200 dark:border-stone-800 pt-20 text-center">
+      <h3 className="font-serif text-xl sm:text-2xl text-stone-900 dark:text-stone-100 mb-2">
         {filtered ? 'Sin resultados' : 'Aún no hay usuarios'}
       </h3>
-      <p className="text-sm text-stone-600 mb-8">
+      <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500 mb-8">
         {filtered
           ? 'Prueba con otra búsqueda o quita los filtros.'
           : 'Crea el primer usuario del equipo.'}
@@ -177,7 +177,7 @@ function EmptyState({ filtered }: { filtered: boolean }) {
       {!filtered && (
         <Link
           href="/admin/users/new"
-          className="inline-block bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
+          className="inline-block bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors"
         >
           Crear usuario
         </Link>

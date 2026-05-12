@@ -55,7 +55,7 @@ export default function TaskFilterBar() {
   return (
     <div className="space-y-4 pb-4">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-[10px] uppercase tracking-[0.25em] text-stone-500 mr-3">
+        <span className="text-[10px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mr-3">
           Área
         </span>
         {AREAS.map((a) => {
@@ -66,8 +66,8 @@ export default function TaskFilterBar() {
               href={buildHref({ area: a.value })}
               className={`px-3 py-1.5 text-[11px] uppercase tracking-[0.18em] border transition-colors ${
                 active
-                  ? 'bg-stone-900 text-white border-stone-900'
-                  : 'border-stone-300 text-stone-600 hover:border-stone-900 hover:text-stone-900'
+                  ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 border-stone-900'
+                  : 'border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400 dark:text-stone-500 hover:border-stone-900 hover:text-stone-900 dark:hover:text-stone-100'
               }`}
             >
               {a.label}
@@ -87,12 +87,12 @@ export default function TaskFilterBar() {
             type="search"
             defaultValue={currentQ}
             placeholder="Buscar por título"
-            className="w-full px-0 py-2 border-0 border-b border-stone-300 bg-transparent text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 text-sm transition-colors"
+            className="w-full px-0 py-2 border-0 border-b border-stone-300 dark:border-stone-700 bg-transparent text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:text-stone-500 focus:outline-none focus:border-stone-900 text-sm transition-colors"
           />
         </form>
 
         <div className="flex flex-wrap items-center gap-2">
-          <span className="text-[10px] uppercase tracking-[0.25em] text-stone-500 mr-3">
+          <span className="text-[10px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mr-3">
             Prioridad
           </span>
           {PRIORIDADES.map((p) => {
@@ -103,8 +103,8 @@ export default function TaskFilterBar() {
                 href={buildHref({ prioridad: p.value })}
                 className={`px-3 py-1.5 text-[11px] uppercase tracking-[0.18em] transition-colors ${
                   active
-                    ? 'text-stone-900 underline underline-offset-4 decoration-stone-900'
-                    : 'text-stone-500 hover:text-stone-900'
+                    ? 'text-stone-900 dark:text-stone-100 underline underline-offset-4 decoration-stone-900'
+                    : 'text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
                 }`}
               >
                 {p.label}

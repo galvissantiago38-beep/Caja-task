@@ -70,10 +70,10 @@ function normalizeArea(raw: string | null | undefined): string {
 }
 
 const inputCls =
-  'w-full px-3 py-2.5 border border-stone-300 bg-white text-stone-900 placeholder:text-stone-400 focus:outline-none focus:border-stone-900 transition-colors'
+  'w-full px-3 py-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:text-stone-500 focus:outline-none focus:border-stone-900 transition-colors'
 
 const labelCls =
-  'block text-[11px] uppercase tracking-[0.18em] text-stone-700 mb-2'
+  'block text-[11px] uppercase tracking-[0.18em] text-stone-700 dark:text-stone-300 mb-2'
 
 export default function TaskForm({
   task,
@@ -123,7 +123,7 @@ export default function TaskForm({
 
       <div>
         <span className={labelCls}>Área</span>
-        <div className="grid gap-px bg-stone-200 sm:grid-cols-3">
+        <div className="grid gap-px bg-stone-200 dark:bg-stone-800 sm:grid-cols-3">
           {AREAS.map((a) => {
             const active = area === a.value
             return (
@@ -131,8 +131,8 @@ export default function TaskForm({
                 key={a.value}
                 className={`cursor-pointer p-5 transition-colors text-center ${
                   active
-                    ? 'bg-stone-900 text-white'
-                    : 'bg-white text-stone-900 hover:bg-stone-50'
+                    ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
+                    : 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-800 dark:bg-stone-900'
                 }`}
               >
                 <input
@@ -152,7 +152,7 @@ export default function TaskForm({
 
       <div>
         <span className={labelCls}>Tipo</span>
-        <div className="grid gap-px bg-stone-200 sm:grid-cols-3">
+        <div className="grid gap-px bg-stone-200 dark:bg-stone-800 sm:grid-cols-3">
           {FRECUENCIAS.map((f) => {
             const active = frecuencia === f.value
             return (
@@ -160,8 +160,8 @@ export default function TaskForm({
                 key={f.value}
                 className={`cursor-pointer p-5 transition-colors ${
                   active
-                    ? 'bg-stone-900 text-white'
-                    : 'bg-white text-stone-900 hover:bg-stone-50'
+                    ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
+                    : 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-800 dark:bg-stone-900'
                 }`}
               >
                 <input
@@ -177,7 +177,7 @@ export default function TaskForm({
                 </span>
                 <span
                   className={`block text-xs leading-relaxed ${
-                    active ? 'text-stone-200' : 'text-stone-500'
+                    active ? 'text-stone-200' : 'text-stone-500 dark:text-stone-400'
                   }`}
                 >
                   {f.desc}
@@ -188,8 +188,8 @@ export default function TaskForm({
         </div>
       </div>
 
-      <div className="border-t border-stone-200 pt-8">
-        <span className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-5 block">
+      <div className="border-t border-stone-200 dark:border-stone-800 pt-8">
+        <span className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-5 block">
           Plazo de ejecución
         </span>
 
@@ -206,7 +206,7 @@ export default function TaskForm({
               defaultValue={task?.hora_limite?.slice(0, 5) ?? '17:00'}
               className={inputCls}
             />
-            <p className="text-xs text-stone-500 mt-2">
+            <p className="text-xs text-stone-500 dark:text-stone-400 mt-2">
               El equipo recibirá un aviso antes de esta hora.
             </p>
           </div>
@@ -240,7 +240,7 @@ export default function TaskForm({
                 className={inputCls}
               />
             </div>
-            <p className="text-xs text-stone-500 sm:col-span-2">
+            <p className="text-xs text-stone-500 dark:text-stone-400 sm:col-span-2">
               Aviso 24 horas antes.
             </p>
           </div>
@@ -274,7 +274,7 @@ export default function TaskForm({
                 className={inputCls}
               />
             </div>
-            <p className="text-xs text-stone-500 sm:col-span-2">
+            <p className="text-xs text-stone-500 dark:text-stone-400 sm:col-span-2">
               Aviso 1 día antes de la apertura y 1 día antes del cierre.
             </p>
           </div>
@@ -291,8 +291,8 @@ export default function TaskForm({
                 key={p.value}
                 className={`cursor-pointer border px-5 py-2 text-[11px] uppercase tracking-[0.2em] transition-colors ${
                   active
-                    ? 'border-stone-900 bg-stone-900 text-white'
-                    : 'border-stone-300 text-stone-600 hover:border-stone-900 hover:text-stone-900'
+                    ? 'border-stone-900 bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900'
+                    : 'border-stone-300 dark:border-stone-700 text-stone-600 dark:text-stone-400 dark:text-stone-500 hover:border-stone-900 hover:text-stone-900 dark:hover:text-stone-100'
                 }`}
               >
                 <input
@@ -310,16 +310,16 @@ export default function TaskForm({
         </div>
       </div>
 
-      <div className="flex items-center justify-end gap-4 pt-6 border-t border-stone-200">
+      <div className="flex items-center justify-end gap-4 pt-6 border-t border-stone-200 dark:border-stone-800">
         <Link
           href={cancelHref}
-          className="text-[11px] uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 transition-colors"
+          className="text-[11px] uppercase tracking-[0.18em] text-stone-500 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
         >
           Cancelar
         </Link>
         <button
           type="submit"
-          className="bg-stone-900 text-white px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 transition-colors"
+          className="bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors"
         >
           {submitLabel}
         </button>
