@@ -23,8 +23,13 @@ const AREAS: { key: string; label: string; href: string }[] = [
   { key: 'almacenista', label: 'Almacén', href: '/areas/almacen' },
 ]
 
-export default async function DashboardPage() {
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ ok?: string }>
+}) {
   const supabase = await createClient()
+  const sp = await searchParams
 
   const {
     data: { user },
@@ -88,6 +93,12 @@ export default async function DashboardPage() {
       </header>
 
       <main className="max-w-5xl mx-auto px-4 sm:px-8 py-10 sm:py-14">
+        {sp.ok === 'usuario_creado' && (
+          <div className="mb-10 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 px-5 py-4 text-sm text-stone-800 dark:text-stone-200">
+            Usuario creado correctamente.
+          </div>
+        )}
+
         <div className="mb-14">
           <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
             Massimo Dutti · Calle 82
@@ -139,6 +150,12 @@ export default async function DashboardPage() {
         )}
 
         <section className="border-t border-stone-200 dark:border-stone-800 pt-10 mt-14 flex flex-wrap gap-6 text-[11px] uppercase tracking-[0.18em]">
+          <Link
+            href="/users/new"
+            className="text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 underline underline-offset-4 decoration-stone-300 dark:decoration-stone-700 hover:decoration-stone-900 dark:hover:decoration-stone-100 transition-colors"
+          >
+            + Crear usuario
+          </Link>
           <Link
             href="/tasks/historico"
             className="text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 underline underline-offset-4 decoration-stone-300 dark:decoration-stone-700 hover:decoration-stone-900 dark:hover:decoration-stone-100 transition-colors"

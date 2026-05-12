@@ -54,6 +54,7 @@ export default async function NewUserPage({
       )}
 
       <form action={createUser} className="space-y-8 border-t border-stone-200 dark:border-stone-800 pt-8">
+        <input type="hidden" name="redirect_base" value="/admin/users/new" />
         <div>
           <label htmlFor="nombre" className={labelCls}>
             Nombre completo

@@ -2,10 +2,11 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireAdmin } from './_lib/require-admin'
 
-const ROLES = ['admin', 'lider', 'cajero'] as const
+const ROLES = ['admin', 'lider', 'cajero', 'visual', 'almacenista'] as const
 type Rol = (typeof ROLES)[number]
 
 function parseRol(value: FormDataEntryValue | null): Rol {
@@ -13,15 +14,22 @@ function parseRol(value: FormDataEntryValue | null): Rol {
 }
 
 export async function createUser(formData: FormData) {
-  await requireAdmin()
+  // Cualquier usuario autenticado puede crear nuevas cuentas desde dentro
+  // de la app. Lo único cerrado es el signup público en /signup.
+  const supabase = await createClient()
+  const {
+    data: { user: actor },
+  } = await supabase.auth.getUser()
+  if (!actor) redirect('/login')
 
   const email = String(formData.get('email') ?? '').trim().toLowerCase()
   const password = String(formData.get('password') ?? '')
   const nombre = String(formData.get('nombre') ?? '').trim()
   const rol = parseRol(formData.get('rol'))
+  const redirectBase = String(formData.get('redirect_base') ?? '/users/new')
 
   if (!email || !password || !nombre) {
-    redirect('/admin/users/new?error=campos')
+    redirect(`${redirectBase}?error=campos`)
   }
 
   const admin = createAdminClient()
@@ -36,7 +44,7 @@ export async function createUser(formData: FormData) {
   if (authError || !created.user) {
     console.error('createUser auth:', authError)
     const code = authError?.message?.includes('already') ? 'duplicado' : 'auth'
-    redirect(`/admin/users/new?error=${code}`)
+    redirect(`${redirectBase}?error=${code}`)
   }
 
   const { error: profileError } = await admin
@@ -50,12 +58,13 @@ export async function createUser(formData: FormData) {
     console.error('createUser profile:', profileError)
     // Limpiar el auth user que quedó huérfano
     await admin.auth.admin.deleteUser(created.user.id)
-    redirect('/admin/users/new?error=perfil')
+    redirect(`${redirectBase}?error=perfil`)
   }
 
   revalidatePath('/admin')
   revalidatePath('/admin/users')
-  redirect('/admin/users?ok=creado')
+  revalidatePath('/dashboard')
+  redirect('/dashboard?ok=usuario_creado')
 }
 
 export async function updateUser(id: string, formData: FormData) {
