@@ -6,6 +6,16 @@ import { addDays, bucketize, ymdInBogota, type Bucket } from '@/lib/dates'
 import { completarInstancia } from '../../tasks/actions'
 import PlazoChip from '../../tasks/_components/PlazoChip'
 import CompletarBoton from '../../tasks/_components/CompletarBoton'
+import NewNoteForm from './_components/NewNoteForm'
+import NoteItem from './_components/NoteItem'
+
+type AreaNote = {
+  id: string
+  contenido: string
+  firma: string | null
+  created_at: string
+  updated_at: string
+}
 
 const AREA_MAP: Record<string, { rol: string; label: string }> = {
   caja: { rol: 'cajero', label: 'Caja' },
@@ -68,6 +78,15 @@ export default async function AreaPage({
     .overrideTypes<{ id: string }[], { merge: false }>()
 
   const taskIds = (tasksOfArea ?? []).map((t) => t.id)
+
+  // Notas del área (independientes de las tareas)
+  const { data: notesData } = await supabase
+    .from('notes')
+    .select('id, contenido, firma, created_at, updated_at')
+    .eq('area', meta.rol)
+    .order('created_at', { ascending: false })
+    .overrideTypes<AreaNote[], { merge: false }>()
+  const notas = notesData ?? []
 
   let instances: AreaInstance[] = []
   let completadas: AreaInstance[] = []
@@ -229,6 +248,32 @@ export default async function AreaPage({
             })}
           </div>
         )}
+
+        <section className="border-t border-stone-200 dark:border-stone-800 pt-14 mt-16">
+          <div className="flex items-end justify-between flex-wrap gap-4 mb-6">
+            <div>
+              <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
+                Comunicación del área
+              </p>
+              <h2 className="font-serif text-2xl sm:text-3xl text-stone-900 dark:text-stone-100">
+                Notas
+              </h2>
+            </div>
+            <NewNoteForm area={meta.rol} />
+          </div>
+          {notas.length === 0 ? (
+            <p className="text-sm text-stone-500 dark:text-stone-400 border-t border-stone-200 dark:border-stone-800 pt-6">
+              Aún no hay notas en esta área. Deja la primera con el botón
+              &quot;Nueva nota&quot;.
+            </p>
+          ) : (
+            <ul className="grid gap-px bg-stone-200 dark:bg-stone-800 border border-stone-200 dark:border-stone-800">
+              {notas.map((n) => (
+                <NoteItem key={n.id} note={n} area={meta.rol} />
+              ))}
+            </ul>
+          )}
+        </section>
 
         {completadas.length > 0 && (
           <section className="border-t border-stone-200 dark:border-stone-800 pt-14 mt-16">
