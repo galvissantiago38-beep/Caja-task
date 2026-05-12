@@ -30,6 +30,7 @@ type AreaInstance = {
   id: string
   fecha_limite: string
   completada_en: string | null
+  notas: string | null
   task: {
     id: string
     titulo: string
@@ -68,21 +69,38 @@ export default async function AreaPage({
   const taskIds = (tasksOfArea ?? []).map((t) => t.id)
 
   let instances: AreaInstance[] = []
+  let completadas: AreaInstance[] = []
   if (taskIds.length > 0) {
-    const { data, error } = await supabase
-      .from('task_instances')
-      .select(
-        'id, fecha_limite, completada_en, task:tasks!task_id(id, titulo, descripcion, frecuencia, prioridad, hora_limite, apertura, area)'
-      )
-      .in('task_id', taskIds)
-      .is('completada_en', null)
-      .order('fecha_limite', { ascending: true })
-      .overrideTypes<AreaInstance[], { merge: false }>()
-    if (error) {
-      console.error('Error cargando instancias del área:', error)
+    const [pending, done] = await Promise.all([
+      supabase
+        .from('task_instances')
+        .select(
+          'id, fecha_limite, completada_en, notas, task:tasks!task_id(id, titulo, descripcion, frecuencia, prioridad, hora_limite, apertura, area)'
+        )
+        .in('task_id', taskIds)
+        .is('completada_en', null)
+        .order('fecha_limite', { ascending: true })
+        .overrideTypes<AreaInstance[], { merge: false }>(),
+      supabase
+        .from('task_instances')
+        .select(
+          'id, fecha_limite, completada_en, notas, task:tasks!task_id(id, titulo, descripcion, frecuencia, prioridad, hora_limite, apertura, area)'
+        )
+        .in('task_id', taskIds)
+        .not('completada_en', 'is', null)
+        .order('completada_en', { ascending: false })
+        .limit(20)
+        .overrideTypes<AreaInstance[], { merge: false }>(),
+    ])
+    if (pending.error) {
+      console.error('Error cargando pendientes:', pending.error)
       redirect('/error')
     }
-    instances = (data ?? []).filter((i) => i.task)
+    if (done.error) {
+      console.error('Error cargando completadas:', done.error)
+    }
+    instances = (pending.data ?? []).filter((i) => i.task)
+    completadas = (done.data ?? []).filter((i) => i.task)
   }
 
   const today = ymdInBogota(new Date())
@@ -208,6 +226,28 @@ export default async function AreaPage({
           </div>
         )}
 
+        {completadas.length > 0 && (
+          <section className="border-t border-stone-200 pt-14 mt-16">
+            <div className="flex items-end justify-between mb-6">
+              <div>
+                <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
+                  Histórico reciente
+                </p>
+                <h2 className="font-serif text-3xl text-stone-900">
+                  Completadas
+                </h2>
+              </div>
+              <Link
+                href={`/tasks/historico?area=${meta.rol}`}
+                className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
+              >
+                Ver todo →
+              </Link>
+            </div>
+            <CompletadasList items={completadas} todayBogota={today} />
+          </section>
+        )}
+
         <div className="border-t border-stone-200 pt-10 mt-16 flex flex-wrap gap-6 text-[11px] uppercase tracking-[0.18em]">
           <Link
             href={`/tasks?area=${meta.rol}`}
@@ -216,13 +256,92 @@ export default async function AreaPage({
             Ver tareas activas →
           </Link>
           <Link
-            href="/tasks/historico"
+            href={`/tasks/historico?area=${meta.rol}`}
             className="text-stone-700 hover:text-stone-900 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
           >
-            Histórico →
+            Histórico completo →
           </Link>
         </div>
       </main>
+    </div>
+  )
+}
+
+function CompletadasList({
+  items,
+  todayBogota,
+}: {
+  items: AreaInstance[]
+  todayBogota: string
+}) {
+  const yesterdayBogota = addDays(todayBogota, -1)
+
+  const grouped = items.reduce<Record<string, AreaInstance[]>>((acc, inst) => {
+    const completedDate = inst.completada_en
+      ? ymdInBogota(new Date(inst.completada_en))
+      : 'sin-fecha'
+    acc[completedDate] = acc[completedDate] ?? []
+    acc[completedDate].push(inst)
+    return acc
+  }, {})
+
+  const fechas = Object.keys(grouped).sort((a, b) => b.localeCompare(a))
+
+  function labelForDate(d: string): string {
+    if (d === todayBogota) return 'Hoy'
+    if (d === yesterdayBogota) return 'Ayer'
+    const [y, m, day] = d.split('-')
+    return `${day}/${m}/${y}`
+  }
+
+  function formatTime(iso: string | null): string {
+    if (!iso) return ''
+    const date = new Date(iso)
+    return date.toLocaleTimeString('es-CO', {
+      timeZone: 'America/Bogota',
+      hour: '2-digit',
+      minute: '2-digit',
+    })
+  }
+
+  return (
+    <div className="space-y-8">
+      {fechas.map((fecha) => {
+        const day = grouped[fecha]
+        return (
+          <div key={fecha}>
+            <div className="flex items-center gap-4 mb-3">
+              <span className="text-[10px] uppercase tracking-[0.25em] text-stone-700 font-medium">
+                {labelForDate(fecha)}
+              </span>
+              <span className="flex-1 h-px bg-stone-200" />
+              <span className="text-[10px] uppercase tracking-[0.2em] text-stone-500">
+                {day.length}
+              </span>
+            </div>
+            <ul className="divide-y divide-stone-200">
+              {day.map((inst) => (
+                <li key={inst.id} className="py-4 flex items-start gap-4">
+                  <span className="text-stone-400 text-sm mt-0.5">✓</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-stone-900 line-through decoration-stone-300">
+                      {inst.task!.titulo}
+                    </p>
+                    {inst.notas && (
+                      <p className="text-sm text-stone-500 mt-1">
+                        {inst.notas}
+                      </p>
+                    )}
+                  </div>
+                  <span className="text-[11px] text-stone-500 shrink-0">
+                    {formatTime(inst.completada_en)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )
+      })}
     </div>
   )
 }
