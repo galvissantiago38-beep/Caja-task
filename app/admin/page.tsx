@@ -1,70 +1,73 @@
 import Link from 'next/link'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireAdmin } from './_lib/require-admin'
-
-type RoleCount = { rol: string | null }
+import { ymdInBogota } from '@/lib/dates'
 
 export default async function AdminHome() {
-  const { profile } = await requireAdmin()
+  await requireAdmin()
   const admin = createAdminClient()
 
-  const [{ data: users }, { count: tareasActivas }, { count: tareasInactivas }] =
-    await Promise.all([
-      admin
-        .from('profiles')
-        .select('rol')
-        .overrideTypes<RoleCount[], { merge: false }>(),
-      admin
-        .from('tasks')
-        .select('id', { count: 'exact', head: true })
-        .eq('activa', true),
-      admin
-        .from('tasks')
-        .select('id', { count: 'exact', head: true })
-        .eq('activa', false),
-    ])
+  const todayBogota = ymdInBogota(new Date())
+  const monthStart = todayBogota.slice(0, 7) + '-01'
 
-  const total = users?.length ?? 0
-  const admins = users?.filter((u) => u.rol === 'admin').length ?? 0
-  const cajeros = users?.filter((u) => u.rol === 'cajero').length ?? 0
-  const visuales = users?.filter((u) => u.rol === 'visual').length ?? 0
-  const almacenistas =
-    users?.filter((u) => u.rol === 'almacenista').length ?? 0
+  const [
+    { count: tareasActivas },
+    { count: tareasArchivadas },
+    { count: pendientes },
+    { count: completadasMes },
+    { count: notasTotales },
+  ] = await Promise.all([
+    admin
+      .from('tasks')
+      .select('id', { count: 'exact', head: true })
+      .eq('activa', true),
+    admin
+      .from('tasks')
+      .select('id', { count: 'exact', head: true })
+      .eq('activa', false),
+    admin
+      .from('task_instances')
+      .select('id', { count: 'exact', head: true })
+      .is('completada_en', null),
+    admin
+      .from('task_instances')
+      .select('id', { count: 'exact', head: true })
+      .gte('completada_en', `${monthStart}T00:00:00`),
+    admin.from('notes').select('id', { count: 'exact', head: true }),
+  ])
 
   return (
     <div className="space-y-14">
       <section>
         <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
-          Bienvenido
+          Massimo Dutti · Calle 82
         </p>
         <h1 className="font-serif text-3xl sm:text-5xl text-stone-900 dark:text-stone-100 leading-tight">
-          {profile?.nombre ?? 'Admin'}
+          Vista general
         </h1>
-        <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500 mt-3">
-          Resumen del equipo y accesos rápidos.
+        <p className="text-sm text-stone-600 dark:text-stone-400 mt-3 max-w-md">
+          Resumen del estado de la tienda.
         </p>
-      </section>
-
-      <section>
-        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-5">
-          Equipo
-        </p>
-        <Stat label="Total" value={total} />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-stone-200 dark:bg-stone-800 mt-px">
-          <Stat label="Admins" value={admins} />
-          <Stat label="Cajeros" value={cajeros} />
-          <Stat label="Visual" value={visuales} />
-          <Stat label="Almacén" value={almacenistas} />
-        </div>
       </section>
 
       <section>
         <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-5">
           Tareas
         </p>
-        <div className="grid grid-cols-2 gap-px bg-stone-200 dark:bg-stone-800">
-          <Stat label="Activas" value={tareasActivas ?? 0} />
-          <Stat label="Archivadas" value={tareasInactivas ?? 0} muted />
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-stone-200 dark:bg-stone-800">
+          <Stat label="Activas" value={tareasActivas ?? 0} highlight />
+          <Stat label="Pendientes" value={pendientes ?? 0} highlight />
+          <Stat label="Completadas mes" value={completadasMes ?? 0} />
+          <Stat label="Archivadas" value={tareasArchivadas ?? 0} muted />
+        </div>
+      </section>
+
+      <section>
+        <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-5">
+          Comunicación
+        </p>
+        <div className="grid grid-cols-1 gap-px bg-stone-200 dark:bg-stone-800">
+          <Stat label="Notas en circulación" value={notasTotales ?? 0} />
         </div>
       </section>
 
@@ -74,20 +77,20 @@ export default async function AdminHome() {
         </p>
         <div className="grid gap-px bg-stone-200 dark:bg-stone-800 sm:grid-cols-3">
           <ActionCard
-            href="/admin/users/new"
-            title="Nuevo usuario"
-            description="Crear cuenta con rol asignado"
+            href="/dashboard"
+            title="Áreas"
+            description="Volver al dashboard de áreas"
             primary
           />
           <ActionCard
-            href="/admin/users"
-            title="Ver usuarios"
-            description="Lista, edición y permisos"
+            href="/tasks"
+            title="Tareas activas"
+            description="Ver, crear, editar y archivar"
           />
           <ActionCard
-            href="/tasks"
-            title="Tareas del equipo"
-            description="Ver y administrar tareas"
+            href="/tasks/historico"
+            title="Histórico"
+            description="Últimas 50 tareas completadas"
           />
         </div>
       </section>
@@ -98,10 +101,12 @@ export default async function AdminHome() {
 function Stat({
   label,
   value,
+  highlight = false,
   muted = false,
 }: {
   label: string
   value: number
+  highlight?: boolean
   muted?: boolean
 }) {
   return (
@@ -111,7 +116,11 @@ function Stat({
       </p>
       <p
         className={`font-serif text-3xl sm:text-4xl ${
-          muted ? 'text-stone-400 dark:text-stone-500' : 'text-stone-900 dark:text-stone-100'
+          muted
+            ? 'text-stone-400 dark:text-stone-500'
+            : highlight
+            ? 'text-stone-900 dark:text-stone-100'
+            : 'text-stone-700 dark:text-stone-300'
         }`}
       >
         {value}
@@ -137,20 +146,24 @@ function ActionCard({
       className={`block p-7 group transition-colors ${
         primary
           ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 hover:bg-stone-700 dark:hover:bg-stone-300'
-          : 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-800 dark:bg-stone-900'
+          : 'bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 hover:bg-stone-50 dark:hover:bg-stone-800'
       }`}
     >
       <p
         className={`text-[11px] uppercase tracking-[0.2em] mb-3 ${
-          primary ? 'text-stone-300 dark:text-stone-700' : 'text-stone-500 dark:text-stone-400'
+          primary
+            ? 'text-stone-300 dark:text-stone-700'
+            : 'text-stone-500 dark:text-stone-400'
         }`}
       >
-        {primary ? '＋ Crear' : 'Acceso'}
+        Acceso
       </p>
       <p className="font-serif text-xl mb-2">{title}</p>
       <p
         className={`text-xs ${
-          primary ? 'text-stone-300 dark:text-stone-700' : 'text-stone-500 dark:text-stone-400'
+          primary
+            ? 'text-stone-300 dark:text-stone-700'
+            : 'text-stone-500 dark:text-stone-400'
         }`}
       >
         {description}

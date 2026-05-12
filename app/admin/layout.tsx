@@ -2,7 +2,6 @@ import Link from 'next/link'
 import ThemeToggle from '@/app/_components/ThemeToggle'
 import { logout } from '../auth/actions'
 import { requireAdmin } from './_lib/require-admin'
-import AdminNav from './_components/AdminNav'
 
 export default async function AdminLayout({
   children,
@@ -49,8 +48,6 @@ export default async function AdminLayout({
           </div>
         </div>
       </header>
-
-      <AdminNav />
 
       <main className="max-w-6xl mx-auto px-4 sm:px-8 py-10 sm:py-14">{children}</main>
     </div>

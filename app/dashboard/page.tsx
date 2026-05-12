@@ -138,37 +138,22 @@ export default async function DashboardPage() {
           </section>
         )}
 
-        {profile?.rol === 'admin' && (
-          <section className="border-t border-stone-200 dark:border-stone-800 pt-14 mt-14">
-            <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
-              Administración
-            </p>
-            <div className="flex items-end justify-between flex-wrap gap-6">
-              <div className="max-w-md">
-                <h2 className="font-serif text-xl sm:text-2xl text-stone-900 dark:text-stone-100 mb-2">
-                  Panel de administración
-                </h2>
-                <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500 leading-relaxed">
-                  Gestionar el perfil compartido, tareas activas e histórico.
-                </p>
-              </div>
-              <div className="flex gap-3 flex-wrap">
-                <Link
-                  href="/admin"
-                  className="bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors"
-                >
-                  Ir al panel
-                </Link>
-                <Link
-                  href="/tasks/historico"
-                  className="border border-stone-900 dark:border-stone-100 text-stone-900 dark:text-stone-100 px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-50 dark:hover:bg-stone-800 dark:bg-stone-900 transition-colors"
-                >
-                  Histórico
-                </Link>
-              </div>
-            </div>
-          </section>
-        )}
+        <section className="border-t border-stone-200 dark:border-stone-800 pt-10 mt-14 flex flex-wrap gap-6 text-[11px] uppercase tracking-[0.18em]">
+          <Link
+            href="/tasks/historico"
+            className="text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 underline underline-offset-4 decoration-stone-300 dark:decoration-stone-700 hover:decoration-stone-900 dark:hover:decoration-stone-100 transition-colors"
+          >
+            Histórico →
+          </Link>
+          {profile?.rol === 'admin' && (
+            <Link
+              href="/admin"
+              className="text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 underline underline-offset-4 decoration-stone-300 dark:decoration-stone-700 hover:decoration-stone-900 dark:hover:decoration-stone-100 transition-colors"
+            >
+              Vista general →
+            </Link>
+          )}
+        </section>
       </main>
     </div>
   )

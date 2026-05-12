@@ -5,7 +5,6 @@ import { usePathname } from 'next/navigation'
 
 const ITEMS = [
   { href: '/admin', label: 'Inicio', exact: true },
-  { href: '/admin/users', label: 'Usuarios', exact: false },
 ]
 
 export default function AdminNav() {
