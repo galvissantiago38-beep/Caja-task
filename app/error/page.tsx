@@ -15,20 +15,12 @@ export default function ErrorPage() {
           intenta de nuevo.
         </p>
 
-        <div className="flex flex-col gap-3">
-          <Link
-            href="/login"
-            className="w-full bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors"
-          >
-            Volver a iniciar sesión
-          </Link>
-          <Link
-            href="/signup"
-            className="w-full border border-stone-300 dark:border-stone-700 text-stone-900 dark:text-stone-100 py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:bg-stone-50 dark:hover:bg-stone-800 dark:bg-stone-900 transition-colors"
-          >
-            Crear cuenta nueva
-          </Link>
-        </div>
+        <Link
+          href="/login"
+          className="inline-block bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 px-8 py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors"
+        >
+          Volver a iniciar sesión
+        </Link>
       </div>
     </div>
   )

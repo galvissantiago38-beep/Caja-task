@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import { login } from '../auth/actions'
 
 export default function LoginPage() {
@@ -57,14 +56,9 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p className="mt-10 text-center text-sm text-stone-500 dark:text-stone-400">
-          ¿No tienes cuenta?{' '}
-          <Link
-            href="/signup"
-            className="text-stone-900 dark:text-stone-100 underline underline-offset-4 decoration-stone-300 hover:decoration-stone-900 transition-colors"
-          >
-            Regístrate
-          </Link>
+        <p className="mt-10 text-center text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+          Acceso restringido al equipo de la tienda. Si necesitas
+          credenciales, pídelas al administrador.
         </p>
       </div>
     </div>
