@@ -5,7 +5,7 @@ import { addDays, formatDateEs, ymdInBogota } from './dates'
 
 const APP_URL =
   process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') ||
-  'https://caja-task.vercel.app'
+  'https://tasks-calle82.vercel.app'
 const EMAIL_FROM =
   process.env.EMAIL_FROM || 'Caja Tasks <onboarding@resend.dev>'
 // Single inbox para todas las notificaciones del cron. Default = correo
