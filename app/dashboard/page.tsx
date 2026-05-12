@@ -62,11 +62,11 @@ export default async function DashboardPage() {
   return (
     <div className="min-h-screen bg-cream">
       <header className="border-b border-stone-200">
-        <div className="max-w-5xl mx-auto px-8 py-6 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-5 sm:py-6 flex items-center justify-between gap-3">
           <Link href="/dashboard" className="font-serif text-xl tracking-wide">
             TASKS
           </Link>
-          <nav className="flex items-center gap-8">
+          <nav className="flex items-center gap-4 sm:gap-8">
             <Link
               href="/profile"
               className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 transition-colors"
@@ -78,19 +78,19 @@ export default async function DashboardPage() {
                 formAction={logout}
                 className="text-[11px] uppercase tracking-[0.18em] text-stone-500 hover:text-stone-900 transition-colors"
               >
-                Cerrar sesión
+                Salir
               </button>
             </form>
           </nav>
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-8 py-14">
+      <main className="max-w-5xl mx-auto px-4 sm:px-8 py-10 sm:py-14">
         <div className="mb-14">
           <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
             Massimo Dutti · Calle 82
           </p>
-          <h1 className="font-serif text-5xl text-stone-900 leading-tight italic">
+          <h1 className="font-serif text-3xl sm:text-5xl text-stone-900 leading-tight italic">
             {greetingForBogota()}.
           </h1>
           <p className="text-sm text-stone-500 mt-4 max-w-md leading-relaxed">
@@ -143,7 +143,7 @@ export default async function DashboardPage() {
             </p>
             <div className="flex items-end justify-between flex-wrap gap-6">
               <div className="max-w-md">
-                <h2 className="font-serif text-2xl text-stone-900 mb-2">
+                <h2 className="font-serif text-xl sm:text-2xl text-stone-900 mb-2">
                   Panel de administración
                 </h2>
                 <p className="text-sm text-stone-600 leading-relaxed">
@@ -214,12 +214,12 @@ function AreaCard({
       <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-4">
         Área
       </p>
-      <h3 className="font-serif text-3xl text-stone-900 mb-6 group-hover:underline underline-offset-4 decoration-1">
+      <h3 className="font-serif text-2xl sm:text-3xl text-stone-900 mb-6 group-hover:underline underline-offset-4 decoration-1">
         {label}
       </h3>
       <div className="space-y-1">
         <p className="text-sm text-stone-700">
-          <span className="font-serif text-2xl text-stone-900 mr-1">
+          <span className="font-serif text-xl sm:text-2xl text-stone-900 mr-1">
             {counts.total}
           </span>
           {counts.total === 1 ? 'tarea pendiente' : 'tareas pendientes'}
@@ -259,7 +259,7 @@ function Stat({
       }`}
     >
       <p className="text-[11px] uppercase tracking-[0.2em] mb-3">{label}</p>
-      <p className="font-serif text-4xl">{value}</p>
+      <p className="font-serif text-3xl sm:text-4xl">{value}</p>
     </div>
   )
 }

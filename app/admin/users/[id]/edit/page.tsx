@@ -78,12 +78,12 @@ export default async function EditUserPage({
           ← Usuarios
         </Link>
         <div className="flex items-center gap-5 mt-6">
-          <div className="w-14 h-14 border border-stone-300 flex items-center justify-center font-serif text-2xl text-stone-900">
+          <div className="w-14 h-14 border border-stone-300 flex items-center justify-center font-serif text-xl sm:text-2xl text-stone-900">
             {(profile.nombre ?? profile.email ?? '?').charAt(0).toUpperCase()}
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-3">
-              <h1 className="font-serif text-3xl text-stone-900">
+              <h1 className="font-serif text-2xl sm:text-3xl text-stone-900">
                 {profile.nombre || 'Sin nombre'}
               </h1>
               {eresTu && (
@@ -110,7 +110,7 @@ export default async function EditUserPage({
           <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
             Datos
           </p>
-          <h2 className="font-serif text-2xl text-stone-900 mb-2">
+          <h2 className="font-serif text-xl sm:text-2xl text-stone-900 mb-2">
             Datos y permisos
           </h2>
           <p className="text-sm text-stone-600">
@@ -169,7 +169,7 @@ export default async function EditUserPage({
           <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
             Seguridad
           </p>
-          <h2 className="font-serif text-2xl text-stone-900 mb-2">
+          <h2 className="font-serif text-xl sm:text-2xl text-stone-900 mb-2">
             Cambiar contraseña
           </h2>
           <p className="text-sm text-stone-600">

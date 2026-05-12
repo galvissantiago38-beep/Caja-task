@@ -122,7 +122,7 @@ export default async function AreaPage({
   return (
     <div className="min-h-screen bg-cream">
       <header className="border-b border-stone-200">
-        <div className="max-w-5xl mx-auto px-8 py-6 flex items-center justify-between">
+        <div className="max-w-5xl mx-auto px-4 sm:px-8 py-5 sm:py-6 flex items-center justify-between gap-3">
           <Link href="/dashboard" className="font-serif text-xl tracking-wide">
             TASKS
           </Link>
@@ -135,13 +135,13 @@ export default async function AreaPage({
         </div>
       </header>
 
-      <main className="max-w-5xl mx-auto px-8 py-14">
+      <main className="max-w-5xl mx-auto px-4 sm:px-8 py-10 sm:py-14">
         <div className="flex items-end justify-between mb-12 flex-wrap gap-6">
           <div>
             <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
               Área
             </p>
-            <h1 className="font-serif text-5xl text-stone-900 leading-tight">
+            <h1 className="font-serif text-3xl sm:text-5xl text-stone-900 leading-tight">
               {meta.label}
             </h1>
             <p className="text-sm text-stone-600 mt-3">
@@ -178,7 +178,7 @@ export default async function AreaPage({
               return (
                 <section key={b}>
                   <div className="flex items-end justify-between mb-6 border-b border-stone-200 pb-3">
-                    <h2 className="font-serif text-2xl text-stone-900">
+                    <h2 className="font-serif text-xl sm:text-2xl text-stone-900">
                       {bm.label}
                     </h2>
                     <span className="text-[11px] uppercase tracking-[0.2em] text-stone-500">
@@ -233,7 +233,7 @@ export default async function AreaPage({
                 <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
                   Histórico reciente
                 </p>
-                <h2 className="font-serif text-3xl text-stone-900">
+                <h2 className="font-serif text-2xl sm:text-3xl text-stone-900">
                   Completadas
                 </h2>
               </div>

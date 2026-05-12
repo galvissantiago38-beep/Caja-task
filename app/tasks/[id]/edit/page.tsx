@@ -39,7 +39,7 @@ export default async function EditTaskPage({
   return (
     <div className="min-h-screen bg-cream">
       <header className="border-b border-stone-200">
-        <div className="max-w-3xl mx-auto px-8 py-6 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-4 sm:px-8 py-5 sm:py-6 flex items-center justify-between gap-3">
           <Link href="/dashboard" className="font-serif text-xl tracking-wide">
             TASKS
           </Link>
@@ -52,12 +52,12 @@ export default async function EditTaskPage({
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-8 py-14">
+      <main className="max-w-3xl mx-auto px-4 sm:px-8 py-10 sm:py-14">
         <div className="mb-12">
           <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
             Tareas
           </p>
-          <h1 className="font-serif text-4xl text-stone-900 mb-2">
+          <h1 className="font-serif text-3xl sm:text-4xl text-stone-900 mb-2">
             Editar tarea
           </h1>
           <p className="text-sm text-stone-600">

@@ -64,7 +64,7 @@ export default async function UsersPage({
           <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
             Equipo
           </p>
-          <h1 className="font-serif text-4xl text-stone-900 mb-2">Usuarios</h1>
+          <h1 className="font-serif text-3xl sm:text-4xl text-stone-900 mb-2">Usuarios</h1>
           <p className="text-sm text-stone-600">
             {lista.length === 1 ? '1 usuario' : `${lista.length} usuarios`} en
             el sistema
@@ -90,8 +90,8 @@ export default async function UsersPage({
       {lista.length === 0 ? (
         <EmptyState filtered={!!(sp.q || sp.rol)} />
       ) : (
-        <div className="border-t border-stone-200">
-          <table className="w-full text-left">
+        <div className="border-t border-stone-200 overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+          <table className="w-full text-left min-w-[560px]">
             <thead>
               <tr className="border-b border-stone-200 text-[10px] uppercase tracking-[0.18em] text-stone-500">
                 <th className="py-4 pr-4 font-medium">Usuario</th>
@@ -166,7 +166,7 @@ export default async function UsersPage({
 function EmptyState({ filtered }: { filtered: boolean }) {
   return (
     <div className="border-t border-stone-200 pt-20 text-center">
-      <h3 className="font-serif text-2xl text-stone-900 mb-2">
+      <h3 className="font-serif text-xl sm:text-2xl text-stone-900 mb-2">
         {filtered ? 'Sin resultados' : 'Aún no hay usuarios'}
       </h3>
       <p className="text-sm text-stone-600 mb-8">

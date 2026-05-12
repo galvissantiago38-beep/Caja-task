@@ -7,7 +7,7 @@ export default function ErrorPage() {
         <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-4">
           Error
         </p>
-        <h1 className="font-serif text-3xl text-stone-900 mb-3">
+        <h1 className="font-serif text-2xl sm:text-3xl text-stone-900 mb-3">
           Algo salió mal
         </h1>
         <p className="text-sm text-stone-600 mb-10 leading-relaxed">

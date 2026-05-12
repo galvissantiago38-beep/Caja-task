@@ -40,7 +40,7 @@ export default async function NewUserPage({
         <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mt-6 mb-3">
           Equipo
         </p>
-        <h1 className="font-serif text-4xl text-stone-900 mb-2">
+        <h1 className="font-serif text-3xl sm:text-4xl text-stone-900 mb-2">
           Nuevo usuario
         </h1>
         <p className="text-sm text-stone-600">

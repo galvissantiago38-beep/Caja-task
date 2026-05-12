@@ -56,7 +56,7 @@ export default async function ProfilePage({
   return (
     <div className="min-h-screen bg-cream">
       <header className="border-b border-stone-200">
-        <div className="max-w-3xl mx-auto px-8 py-6 flex items-center justify-between">
+        <div className="max-w-3xl mx-auto px-4 sm:px-8 py-5 sm:py-6 flex items-center justify-between gap-3">
           <Link href="/dashboard" className="font-serif text-xl tracking-wide">
             TASKS
           </Link>
@@ -69,12 +69,12 @@ export default async function ProfilePage({
         </div>
       </header>
 
-      <main className="max-w-3xl mx-auto px-8 py-14">
+      <main className="max-w-3xl mx-auto px-4 sm:px-8 py-10 sm:py-14">
         <div className="mb-12">
           <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
             Cuenta
           </p>
-          <h1 className="font-serif text-4xl text-stone-900 mb-2">Mi perfil</h1>
+          <h1 className="font-serif text-3xl sm:text-4xl text-stone-900 mb-2">Mi perfil</h1>
           <p className="text-sm text-stone-600">
             Actualiza tus datos y tu contraseña.
           </p>
@@ -93,11 +93,11 @@ export default async function ProfilePage({
 
         <section className="border-t border-stone-200 pt-10 mb-14">
           <div className="flex items-center gap-5 mb-8">
-            <div className="w-14 h-14 border border-stone-300 flex items-center justify-center font-serif text-2xl text-stone-900">
+            <div className="w-14 h-14 border border-stone-300 flex items-center justify-center font-serif text-xl sm:text-2xl text-stone-900">
               {(profile?.nombre ?? user.email ?? '?').charAt(0).toUpperCase()}
             </div>
             <div className="flex-1">
-              <p className="font-serif text-2xl text-stone-900">
+              <p className="font-serif text-xl sm:text-2xl text-stone-900">
                 {profile?.nombre ?? 'Sin nombre'}
               </p>
               <p className="text-sm text-stone-500">{user.email}</p>
@@ -145,7 +145,7 @@ export default async function ProfilePage({
           <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
             Seguridad
           </p>
-          <h2 className="font-serif text-2xl text-stone-900 mb-2">
+          <h2 className="font-serif text-xl sm:text-2xl text-stone-900 mb-2">
             Cambiar contraseña
           </h2>
           <p className="text-sm text-stone-600 mb-8">

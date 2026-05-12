@@ -76,7 +76,7 @@ export default async function HistoricoPage({
   return (
     <div className="min-h-screen bg-cream">
       <header className="border-b border-stone-200">
-        <div className="max-w-6xl mx-auto px-8 py-6 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-5 sm:py-6 flex items-center justify-between gap-3">
           <Link href="/dashboard" className="font-serif text-xl tracking-wide">
             TASKS
           </Link>
@@ -89,12 +89,12 @@ export default async function HistoricoPage({
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-8 py-14">
+      <main className="max-w-6xl mx-auto px-4 sm:px-8 py-10 sm:py-14">
         <div className="mb-12">
           <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
             Tareas
           </p>
-          <h1 className="font-serif text-4xl text-stone-900 mb-2">Histórico</h1>
+          <h1 className="font-serif text-3xl sm:text-4xl text-stone-900 mb-2">Histórico</h1>
           <p className="text-sm text-stone-600">
             Últimas 50 tareas completadas.
           </p>
@@ -102,7 +102,7 @@ export default async function HistoricoPage({
 
         {lista.length === 0 ? (
           <div className="border-t border-stone-200 pt-20 text-center">
-            <h2 className="font-serif text-2xl text-stone-900 mb-2">
+            <h2 className="font-serif text-xl sm:text-2xl text-stone-900 mb-2">
               Aún no hay historial
             </h2>
             <p className="text-sm text-stone-600">
@@ -110,8 +110,8 @@ export default async function HistoricoPage({
             </p>
           </div>
         ) : (
-          <div className="border-t border-stone-200">
-            <table className="w-full text-left">
+          <div className="border-t border-stone-200 overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            <table className="w-full text-left min-w-[720px]">
               <thead>
                 <tr className="border-b border-stone-200 text-[10px] uppercase tracking-[0.18em] text-stone-500">
                   <th className="py-4 pr-4 font-medium">Tarea</th>

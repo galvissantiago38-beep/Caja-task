@@ -37,7 +37,7 @@ export default async function AdminHome() {
         <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 mb-3">
           Bienvenido
         </p>
-        <h1 className="font-serif text-5xl text-stone-900 leading-tight">
+        <h1 className="font-serif text-3xl sm:text-5xl text-stone-900 leading-tight">
           {profile?.nombre ?? 'Admin'}
         </h1>
         <p className="text-sm text-stone-600 mt-3">
@@ -110,7 +110,7 @@ function Stat({
         {label}
       </p>
       <p
-        className={`font-serif text-4xl ${
+        className={`font-serif text-3xl sm:text-4xl ${
           muted ? 'text-stone-400' : 'text-stone-900'
         }`}
       >

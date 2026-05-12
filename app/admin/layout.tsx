@@ -13,7 +13,7 @@ export default async function AdminLayout({
   return (
     <div className="min-h-screen bg-cream">
       <header className="border-b border-stone-200">
-        <div className="max-w-6xl mx-auto px-8 py-6 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-8 py-5 sm:py-6 flex items-center justify-between gap-3">
           <div className="flex items-center gap-6">
             <Link
               href="/dashboard"
@@ -26,14 +26,14 @@ export default async function AdminLayout({
             </span>
           </div>
 
-          <div className="flex items-center gap-8">
+          <div className="flex items-center gap-4 sm:gap-8">
             <Link
               href="/dashboard"
               className="text-[11px] uppercase tracking-[0.18em] text-stone-700 hover:text-stone-900 transition-colors"
             >
               ← Sitio
             </Link>
-            <span className="text-[11px] uppercase tracking-[0.18em] text-stone-500">
+            <span className="hidden sm:inline text-[11px] uppercase tracking-[0.18em] text-stone-500">
               {profile?.nombre ?? 'Admin'}
             </span>
             <form>
@@ -50,7 +50,7 @@ export default async function AdminLayout({
 
       <AdminNav />
 
-      <main className="max-w-6xl mx-auto px-8 py-14">{children}</main>
+      <main className="max-w-6xl mx-auto px-4 sm:px-8 py-10 sm:py-14">{children}</main>
     </div>
   )
 }
