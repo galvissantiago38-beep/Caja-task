@@ -2,24 +2,39 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+@theme {
+  /* Massimo Dutti palette */
+  --color-md-black: #000000;
+  --color-md-dark-grey: #737373;
+  --color-md-sk-grey: #e3e3e3;
+  --color-md-silver: #87888d;
+  --color-md-vanilla: #f4f2ed;
+  --color-md-white: #ffffff;
+  --color-md-error: #b40016;
+  --color-md-success: #12882c;
+  --color-md-info: #1a32a4;
+  --color-md-mustard: #ffe693;
+}
+
 :root {
-  --background: #ffffff;
-  --foreground: #1c1917;
-  --muted: #57534e;
-  --soft: #fafaf9;
-  --border: #e7e5e4;
-  --border-strong: #d6d3d1;
-  --theme-cream: #faf6ed;
+  --background: var(--color-md-white);
+  --foreground: var(--color-md-black);
+  --muted: var(--color-md-dark-grey);
+  --soft: var(--color-md-vanilla);
+  --border: var(--color-md-sk-grey);
+  --border-strong: var(--color-md-silver);
+  /* Compatibilidad con clases existentes mientras migramos */
+  --theme-cream: var(--color-md-vanilla);
 }
 
 .dark {
-  --background: #0c0a09;
-  --foreground: #fafaf9;
-  --muted: #a8a29e;
-  --soft: #1c1917;
-  --border: #292524;
-  --border-strong: #44403c;
-  --theme-cream: #18120c;
+  --background: #0a0a0a;
+  --foreground: var(--color-md-white);
+  --muted: #a0a0a0;
+  --soft: #1a1a1a;
+  --border: #2a2a2a;
+  --border-strong: #3a3a3a;
+  --theme-cream: #0a0a0a;
 }
 
 @theme inline {
@@ -30,20 +45,25 @@
   --color-cream: var(--theme-cream);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
-  --font-sans: var(--font-geist-sans);
-  --font-serif: var(--font-dm-serif);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-serif: var(--font-inter);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), Arial, Helvetica, sans-serif;
+  font-family: var(--font-inter), "Inter", "Helvetica", "Arial", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 1.45;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
+/* Alias para mantener compat con código que usa font-serif: ahora es
+   Inter Light, no una serif. Massimo Dutti no usa serifa. */
 .font-serif {
-  font-family: var(--font-dm-serif), Georgia, serif;
-  letter-spacing: 0.01em;
+  font-family: var(--font-inter), "Inter", sans-serif;
+  font-weight: 300;
+  letter-spacing: -0.005em;
 }

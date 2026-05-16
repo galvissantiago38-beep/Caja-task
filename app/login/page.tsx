@@ -1,64 +1,61 @@
+import Button from '@/components/ui/Button'
+import Input from '@/components/ui/Input'
 import { login } from '../auth/actions'
 
 export default function LoginPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cream px-6 py-16">
+    <div className="min-h-screen flex items-center justify-center bg-md-vanilla dark:bg-[color:var(--background)] px-6 py-16">
       <div className="w-full max-w-sm">
         <div className="text-center mb-14">
-          <h1 className="font-serif text-3xl sm:text-4xl text-stone-900 dark:text-stone-100 tracking-wide mb-3">
+          <h1 className="text-[28px] sm:text-[32px] font-light text-md-black dark:text-md-white tracking-[0.06em] mb-4">
             TASKS
           </h1>
-          <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400">
+          <p className="text-[12px] uppercase tracking-[0.16em] font-light text-md-dark-grey">
             Iniciar sesión
           </p>
         </div>
 
-        <form className="space-y-7">
+        <form className="space-y-8">
           <div>
             <label
               htmlFor="email"
-              className="block text-[11px] uppercase tracking-[0.18em] text-stone-700 dark:text-stone-300 mb-2"
+              className="block text-[11px] uppercase tracking-[0.16em] font-light text-md-dark-grey mb-3"
             >
               Correo electrónico
             </label>
-            <input
+            <Input
               id="email"
               name="email"
               type="email"
               required
               placeholder="ejemplo@correo.com"
-              className="w-full px-0 py-2 border-0 border-b border-stone-300 dark:border-stone-700 bg-transparent text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:text-stone-500 focus:outline-none focus:border-stone-900 transition-colors"
             />
           </div>
 
           <div>
             <label
               htmlFor="password"
-              className="block text-[11px] uppercase tracking-[0.18em] text-stone-700 dark:text-stone-300 mb-2"
+              className="block text-[11px] uppercase tracking-[0.16em] font-light text-md-dark-grey mb-3"
             >
               Contraseña
             </label>
-            <input
+            <Input
               id="password"
               name="password"
               type="password"
               required
               placeholder="••••••••"
-              className="w-full px-0 py-2 border-0 border-b border-stone-300 dark:border-stone-700 bg-transparent text-stone-900 dark:text-stone-100 placeholder:text-stone-400 dark:text-stone-500 focus:outline-none focus:border-stone-900 transition-colors"
             />
           </div>
 
-          <button
-            formAction={login}
-            className="w-full bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 py-3.5 text-xs uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors mt-4"
-          >
+          <Button formAction={login} className="w-full mt-6">
             Ingresar
-          </button>
+          </Button>
         </form>
 
-        <p className="mt-10 text-center text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
-          Acceso restringido al equipo de la tienda. Si necesitas
-          credenciales, pídelas al administrador.
+        <p className="mt-12 text-center text-[12px] text-md-dark-grey font-light leading-[1.45]">
+          Acceso restringido al equipo de la tienda. Si necesitas credenciales,
+          pídelas al administrador.
         </p>
       </div>
     </div>
