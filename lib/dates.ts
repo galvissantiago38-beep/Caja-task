@@ -5,6 +5,13 @@ export function ymdInBogota(date: Date = new Date()): string {
   return shifted.toISOString().slice(0, 10)
 }
 
+export function isoWeekday(ymd: string): number {
+  // 1 = Lunes ... 7 = Domingo (ISO 8601)
+  const [y, m, d] = ymd.split('-').map(Number)
+  const day = new Date(Date.UTC(y, m - 1, d)).getUTCDay()
+  return day === 0 ? 7 : day
+}
+
 export function addDays(ymd: string, n: number): string {
   const [y, m, d] = ymd.split('-').map(Number)
   const dt = new Date(Date.UTC(y, m - 1, d + n))
@@ -17,14 +24,21 @@ export function formatDateEs(ymd: string | null): string {
   return `${d}/${m}/${y}`
 }
 
-export type Bucket = 'vencida' | 'hoy' | 'mañana' | 'pronto' | 'despues'
+export type Bucket =
+  | 'vencida'
+  | 'hoy'
+  | 'mañana'
+  | 'pronto'
+  | 'despues'
+  | 'sin_fecha'
 
 export function bucketize(
-  fecha: string,
+  fecha: string | null,
   today: string,
   tomorrow: string,
   weekEnd: string
 ): Bucket {
+  if (!fecha) return 'sin_fecha'
   if (fecha < today) return 'vencida'
   if (fecha === today) return 'hoy'
   if (fecha === tomorrow) return 'mañana'

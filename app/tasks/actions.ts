@@ -5,7 +5,14 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { requireGestor } from './_lib/require-gestor'
 
-const FRECUENCIAS_VALIDAS = ['unica', 'diaria', 'semanal', 'mensual', 'lapso']
+const FRECUENCIAS_VALIDAS = [
+  'unica',
+  'diaria',
+  'semanal',
+  'mensual',
+  'lapso',
+  'libre',
+]
 const AREAS_VALIDAS = ['cajero', 'visual', 'almacenista']
 const PRIORIDADES_VALIDAS = ['alta', 'media', 'baja']
 
@@ -19,6 +26,7 @@ type TaskPayload = {
   fecha_limite: string | null
   apertura: string | null
   dia_del_mes: number | null
+  dia_semana: number | null
 }
 
 function buildPayload(formData: FormData): TaskPayload | { error: string } {
@@ -44,9 +52,22 @@ function buildPayload(formData: FormData): TaskPayload | { error: string } {
   const fechaRaw = String(formData.get('fecha_limite') ?? '').trim()
   const aperturaRaw = String(formData.get('apertura') ?? '').trim()
   const diaMesRaw = String(formData.get('dia_del_mes') ?? '').trim()
+  const diaSemanaRaw = String(formData.get('dia_semana') ?? '').trim()
 
   if (frecuenciaRaw === 'diaria' && !horaRaw) {
     return { error: 'Las tareas diarias requieren una hora límite.' }
+  }
+  if (frecuenciaRaw === 'semanal') {
+    if (!diaSemanaRaw) {
+      return { error: 'Las tareas semanales requieren un día de la semana.' }
+    }
+    const n = parseInt(diaSemanaRaw, 10)
+    if (Number.isNaN(n) || n < 1 || n > 7) {
+      return { error: 'Día de la semana inválido.' }
+    }
+    if (!horaRaw) {
+      return { error: 'Las tareas semanales requieren una hora límite.' }
+    }
   }
   if (frecuenciaRaw === 'unica' && (!fechaRaw || !horaRaw)) {
     return { error: 'Las tareas definidas requieren fecha y hora.' }
@@ -59,6 +80,7 @@ function buildPayload(formData: FormData): TaskPayload | { error: string } {
       return { error: 'La apertura no puede ser después del cierre.' }
     }
   }
+  // 'libre' no requiere campos adicionales
 
   return {
     titulo,
@@ -66,12 +88,24 @@ function buildPayload(formData: FormData): TaskPayload | { error: string } {
     frecuencia: frecuenciaRaw,
     prioridad,
     area: areaRaw,
-    hora_limite: horaRaw || null,
-    fecha_limite: fechaRaw || null,
+    hora_limite:
+      frecuenciaRaw === 'libre' || frecuenciaRaw === 'lapso'
+        ? frecuenciaRaw === 'lapso'
+          ? null
+          : null
+        : horaRaw || null,
+    fecha_limite:
+      frecuenciaRaw === 'unica' || frecuenciaRaw === 'lapso'
+        ? fechaRaw || null
+        : null,
     apertura: frecuenciaRaw === 'lapso' ? aperturaRaw || null : null,
     dia_del_mes:
       frecuenciaRaw === 'mensual' && diaMesRaw
         ? parseInt(diaMesRaw, 10)
+        : null,
+    dia_semana:
+      frecuenciaRaw === 'semanal' && diaSemanaRaw
+        ? parseInt(diaSemanaRaw, 10)
         : null,
   }
 }
@@ -207,3 +241,4 @@ export async function completarInstancia(
     revalidatePath(`/areas/${areaSlugFromRol(instance.task.area)}`)
   }
 }
+

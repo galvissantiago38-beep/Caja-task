@@ -28,6 +28,7 @@ type TaskRow = {
   hora_limite: string | null
   fecha_limite: string | null
   apertura: string | null
+  dia_semana: number | null
 }
 
 export default async function TasksPage({
@@ -52,7 +53,7 @@ export default async function TasksPage({
   let query = supabase
     .from('tasks')
     .select(
-      'id, titulo, frecuencia, prioridad, area, hora_limite, fecha_limite, apertura'
+      'id, titulo, frecuencia, prioridad, area, hora_limite, fecha_limite, apertura, dia_semana'
     )
     .eq('activa', true)
     .order('created_at', { ascending: false })
@@ -190,6 +191,7 @@ export default async function TasksPage({
                             hora_limite={t.hora_limite}
                             fecha_limite={t.fecha_limite}
                             apertura={t.apertura}
+                            dia_semana={t.dia_semana}
                           />
                         </td>
                         <td className="py-5 pr-4">

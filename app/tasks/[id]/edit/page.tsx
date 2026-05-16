@@ -22,7 +22,7 @@ export default async function EditTaskPage({
   const { data: task, error: taskError } = await supabase
     .from('tasks')
     .select(
-      'id, titulo, descripcion, frecuencia, prioridad, area, hora_limite, fecha_limite, apertura'
+      'id, titulo, descripcion, frecuencia, prioridad, area, hora_limite, fecha_limite, apertura, dia_semana'
     )
     .eq('id', id)
     .eq('activa', true)

@@ -6,7 +6,7 @@ import { formatDateEs } from '@/lib/dates'
 
 type CompletedInstance = {
   id: string
-  fecha_limite: string
+  fecha_limite: string | null
   completada_en: string
   notas: string | null
   task: {
@@ -30,6 +30,7 @@ const FRECUENCIA_LABELS: Record<string, string> = {
   lapso: 'Lapso',
   semanal: 'Semanal',
   mensual: 'Mensual',
+  libre: 'Sin fecha',
 }
 
 const AREA_LABEL: Record<string, string> = {
@@ -133,9 +134,10 @@ export default async function HistoricoPage({
                     FRECUENCIA_LABELS[inst.task.frecuencia] ??
                     inst.task.frecuencia
                   const completadoFmt = formatDateTimeEs(inst.completada_en)
-                  const aTiempo = !inst.completada_en
-                    ? null
-                    : inst.completada_en.slice(0, 10) <= inst.fecha_limite
+                  const aTiempo =
+                    !inst.completada_en || !inst.fecha_limite
+                      ? null
+                      : inst.completada_en.slice(0, 10) <= inst.fecha_limite
                   return (
                     <tr
                       key={inst.id}
@@ -161,7 +163,7 @@ export default async function HistoricoPage({
                         {tipo}
                       </td>
                       <td className="py-5 pr-4 text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500">
-                        {formatDateEs(inst.fecha_limite)}
+                        {inst.fecha_limite ? formatDateEs(inst.fecha_limite) : '—'}
                       </td>
                       <td className="py-5 pr-4">
                         <p className="text-sm text-stone-900 dark:text-stone-100">

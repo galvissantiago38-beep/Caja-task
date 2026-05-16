@@ -7,7 +7,7 @@ import { logout } from '../auth/actions'
 
 type InstanceLite = {
   id: string
-  fecha_limite: string
+  fecha_limite: string | null
   task: { area: string | null; asignado_a: string | null } | null
 }
 
@@ -56,7 +56,7 @@ export default async function DashboardPage({
   const countsByArea = computeAreaCounts(instances ?? [], today)
   const totalPending = (instances ?? []).length
   const totalVencidas = (instances ?? []).filter(
-    (i) => i.fecha_limite < today
+    (i) => i.fecha_limite !== null && i.fecha_limite < today
   ).length
   const totalHoy = (instances ?? []).filter(
     (i) => i.fecha_limite === today
@@ -194,7 +194,7 @@ function computeAreaCounts(
     if (!area) continue
     const c = result[area] ?? { total: 0, vencidas: 0, hoy: 0 }
     c.total++
-    if (inst.fecha_limite < today) c.vencidas++
+    if (inst.fecha_limite !== null && inst.fecha_limite < today) c.vencidas++
     if (inst.fecha_limite === today) c.hoy++
     result[area] = c
   }

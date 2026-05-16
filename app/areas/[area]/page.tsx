@@ -35,11 +35,12 @@ const BUCKET_META: Record<Bucket, { label: string }> = {
   mañana: { label: 'Mañana' },
   pronto: { label: 'Esta semana' },
   despues: { label: 'Más adelante' },
+  sin_fecha: { label: 'Sin fecha' },
 }
 
 type AreaInstance = {
   id: string
-  fecha_limite: string
+  fecha_limite: string | null
   completada_en: string | null
   notas: string | null
   task: {
@@ -51,6 +52,7 @@ type AreaInstance = {
     hora_limite: string | null
     apertura: string | null
     area: string | null
+    dia_semana: number | null
   } | null
 }
 
@@ -95,7 +97,7 @@ export default async function AreaPage({
       supabase
         .from('task_instances')
         .select(
-          'id, fecha_limite, completada_en, notas, task:tasks!task_id(id, titulo, descripcion, frecuencia, prioridad, hora_limite, apertura, area)'
+          'id, fecha_limite, completada_en, notas, task:tasks!task_id(id, titulo, descripcion, frecuencia, prioridad, hora_limite, apertura, area, dia_semana)'
         )
         .in('task_id', taskIds)
         .is('completada_en', null)
@@ -104,7 +106,7 @@ export default async function AreaPage({
       supabase
         .from('task_instances')
         .select(
-          'id, fecha_limite, completada_en, notas, task:tasks!task_id(id, titulo, descripcion, frecuencia, prioridad, hora_limite, apertura, area)'
+          'id, fecha_limite, completada_en, notas, task:tasks!task_id(id, titulo, descripcion, frecuencia, prioridad, hora_limite, apertura, area, dia_semana)'
         )
         .in('task_id', taskIds)
         .not('completada_en', 'is', null)
@@ -137,7 +139,14 @@ export default async function AreaPage({
     {} as Record<Bucket, AreaInstance[]>
   )
 
-  const bucketsOrden: Bucket[] = ['vencida', 'hoy', 'mañana', 'pronto', 'despues']
+  const bucketsOrden: Bucket[] = [
+    'vencida',
+    'hoy',
+    'mañana',
+    'pronto',
+    'despues',
+    'sin_fecha',
+  ]
 
   return (
     <div className="min-h-screen bg-cream">
@@ -235,6 +244,7 @@ export default async function AreaPage({
                             hora_limite={inst.task!.hora_limite}
                             fecha_limite={inst.fecha_limite}
                             apertura={inst.task!.apertura}
+                            dia_semana={inst.task!.dia_semana}
                           />
                         </div>
                         <CompletarBoton

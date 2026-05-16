@@ -1,4 +1,4 @@
-type Frecuencia = 'unica' | 'diaria' | 'semanal' | 'mensual' | 'lapso' | string
+type Frecuencia = 'unica' | 'diaria' | 'semanal' | 'mensual' | 'lapso' | 'libre' | string
 
 const FRECUENCIA_LABELS: Record<string, string> = {
   diaria: 'Diaria',
@@ -6,6 +6,17 @@ const FRECUENCIA_LABELS: Record<string, string> = {
   lapso: 'Lapso',
   semanal: 'Semanal',
   mensual: 'Mensual',
+  libre: 'Sin fecha',
+}
+
+const DIAS_SEMANA: Record<number, string> = {
+  1: 'Lunes',
+  2: 'Martes',
+  3: 'Miércoles',
+  4: 'Jueves',
+  5: 'Viernes',
+  6: 'Sábado',
+  7: 'Domingo',
 }
 
 function formatDate(d: string | null) {
@@ -25,23 +36,30 @@ export default function PlazoChip({
   hora_limite,
   fecha_limite,
   apertura,
+  dia_semana,
 }: {
   frecuencia: Frecuencia
   hora_limite: string | null
   fecha_limite: string | null
   apertura: string | null
+  dia_semana?: number | null
 }) {
   const label = FRECUENCIA_LABELS[frecuencia] ?? frecuencia
 
   let detalle = ''
   if (frecuencia === 'diaria' && hora_limite) {
     detalle = `cada día · ${formatHora(hora_limite)}`
+  } else if (frecuencia === 'semanal' && dia_semana) {
+    const dia = DIAS_SEMANA[dia_semana] ?? ''
+    detalle = `${dia}${hora_limite ? ' · ' + formatHora(hora_limite) : ''}`
   } else if (frecuencia === 'unica' && fecha_limite) {
     detalle = `${formatDate(fecha_limite)}${
       hora_limite ? ' · ' + formatHora(hora_limite) : ''
     }`
   } else if (frecuencia === 'lapso' && apertura && fecha_limite) {
     detalle = `${formatDate(apertura)} – ${formatDate(fecha_limite)}`
+  } else if (frecuencia === 'libre') {
+    detalle = 'sin plazo'
   }
 
   return (

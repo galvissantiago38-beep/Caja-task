@@ -1,7 +1,7 @@
 import 'server-only'
 import { Resend } from 'resend'
 import { createAdminClient } from './supabase/admin'
-import { addDays, formatDateEs, ymdInBogota } from './dates'
+import { addDays, formatDateEs, isoWeekday, ymdInBogota } from './dates'
 
 const APP_URL =
   process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') ||
@@ -21,7 +21,12 @@ const AREA_LABEL: Record<string, string> = {
   almacenista: 'Almacén',
 }
 
-type NotifKind = 'diaria_2h' | 'definida_24h' | 'lapso_apertura' | 'lapso_cierre'
+type NotifKind =
+  | 'diaria_2h'
+  | 'semanal_2h'
+  | 'definida_24h'
+  | 'lapso_apertura'
+  | 'lapso_cierre'
 
 type TaskLite = {
   id: string
@@ -32,11 +37,12 @@ type TaskLite = {
   hora_limite: string | null
   apertura: string | null
   area: string | null
+  dia_semana: number | null
 }
 
 type Instance = {
   id: string
-  fecha_limite: string
+  fecha_limite: string | null
   notificada_dia: boolean | null
   notificada_apertura: boolean | null
   task: TaskLite | null
@@ -58,15 +64,14 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
   const todayBogota = ymdInBogota(now)
   const tomorrowBogota = addDays(todayBogota, 1)
 
-  const instancias_generadas = await generateMissingDailyInstances(
-    admin,
-    todayBogota
-  )
+  const daily = await generateMissingDailyInstances(admin, todayBogota)
+  const weekly = await generateMissingWeeklyInstances(admin, todayBogota)
+  const instancias_generadas = daily + weekly
 
   const { data: instances, error } = await admin
     .from('task_instances')
     .select(
-      'id, fecha_limite, notificada_dia, notificada_apertura, task:tasks!task_id(id, titulo, descripcion, frecuencia, prioridad, hora_limite, apertura, area)'
+      'id, fecha_limite, notificada_dia, notificada_apertura, task:tasks!task_id(id, titulo, descripcion, frecuencia, prioridad, hora_limite, apertura, area, dia_semana)'
     )
     .is('completada_en', null)
     .overrideTypes<Instance[], { merge: false }>()
@@ -129,6 +134,17 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
       ) {
         await send(
           'diaria_2h',
+          `Hoy ${formatDateEs(inst.fecha_limite)} a las ${task.hora_limite.slice(0, 5)}`,
+          'notificada_dia'
+        )
+      } else if (
+        task.frecuencia === 'semanal' &&
+        !inst.notificada_dia &&
+        task.hora_limite &&
+        inst.fecha_limite === todayBogota
+      ) {
+        await send(
+          'semanal_2h',
           `Hoy ${formatDateEs(inst.fecha_limite)} a las ${task.hora_limite.slice(0, 5)}`,
           'notificada_dia'
         )
@@ -222,8 +238,51 @@ async function generateMissingDailyInstances(
   return rows.length
 }
 
+async function generateMissingWeeklyInstances(
+  admin: AdminClient,
+  todayBogota: string
+): Promise<number> {
+  const weekday = isoWeekday(todayBogota)
+
+  const { data: weeklies } = await admin
+    .from('tasks')
+    .select('id')
+    .eq('frecuencia', 'semanal')
+    .eq('activa', true)
+    .eq('dia_semana', weekday)
+    .overrideTypes<{ id: string }[], { merge: false }>()
+
+  if (!weeklies || weeklies.length === 0) return 0
+  const taskIds = weeklies.map((d) => d.id)
+
+  const { data: existing } = await admin
+    .from('task_instances')
+    .select('task_id')
+    .in('task_id', taskIds)
+    .eq('fecha_limite', todayBogota)
+    .overrideTypes<{ task_id: string }[], { merge: false }>()
+
+  const yaTienen = new Set((existing ?? []).map((e) => e.task_id))
+  const faltantes = weeklies.filter((d) => !yaTienen.has(d.id))
+
+  if (faltantes.length === 0) return 0
+
+  const rows = faltantes.map((d) => ({
+    task_id: d.id,
+    fecha_limite: todayBogota,
+  }))
+
+  const { error } = await admin.from('task_instances').insert(rows)
+  if (error) {
+    console.error('generateMissingWeeklyInstances:', error)
+    return 0
+  }
+  return rows.length
+}
+
 const SUBJECTS: Record<NotifKind, (titulo: string) => string> = {
   diaria_2h: (t) => `Tarea de hoy: ${t}`,
+  semanal_2h: (t) => `Tarea de hoy: ${t}`,
   definida_24h: (t) => `Vence mañana: ${t}`,
   lapso_apertura: (t) => `Mañana se habilita: ${t}`,
   lapso_cierre: (t) => `Último día mañana: ${t}`,
@@ -235,6 +294,7 @@ function subjectFor(kind: NotifKind, titulo: string) {
 
 const HEADLINES: Record<NotifKind, string> = {
   diaria_2h: 'Tarea para hoy',
+  semanal_2h: 'Tarea semanal para hoy',
   definida_24h: 'Tarea que vence mañana',
   lapso_apertura: 'Mañana se abre una tarea',
   lapso_cierre: 'Mañana es el último día',
