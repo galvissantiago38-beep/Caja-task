@@ -8,12 +8,11 @@ const APP_URL =
   'https://tasks-calle82.vercel.app'
 const EMAIL_FROM =
   process.env.EMAIL_FROM || 'Caja Tasks <onboarding@resend.dev>'
-// Single inbox para todas las notificaciones del cron. Default = correo
-// corporativo de la tienda. Sobreescribir con NOTIFICATIONS_TO en Vercel
-// si en algún momento se quiere apuntar a otro lado.
-const EMAIL_TO_OVERRIDE_DEFAULT = 'mdutti.calle82@tendenzanova.com.co'
-const NOTIFICATIONS_TO_RAW = process.env.NOTIFICATIONS_TO?.trim()
-const EMAIL_TO_FINAL = NOTIFICATIONS_TO_RAW || EMAIL_TO_OVERRIDE_DEFAULT
+// Fallback: si la tienda no tiene correo registrado en la tabla `tiendas`,
+// el cron usa este. Solo se debería usar como red de seguridad.
+const FALLBACK_EMAIL_TO =
+  process.env.NOTIFICATIONS_TO?.trim() ||
+  'mdutti.calle82@tendenzanova.com.co'
 
 const AREA_LABEL: Record<string, string> = {
   cajero: 'Caja',
@@ -38,6 +37,7 @@ type TaskLite = {
   apertura: string | null
   area: string | null
   dia_semana: number | null
+  tienda: string | null
 }
 
 type Instance = {
@@ -68,10 +68,12 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
   const weekly = await generateMissingWeeklyInstances(admin, todayBogota)
   const instancias_generadas = daily + weekly
 
+  const emailPorTienda = await loadTiendaEmails(admin)
+
   const { data: instances, error } = await admin
     .from('task_instances')
     .select(
-      'id, fecha_limite, notificada_dia, notificada_apertura, task:tasks!task_id(id, titulo, descripcion, frecuencia, prioridad, hora_limite, apertura, area, dia_semana)'
+      'id, fecha_limite, notificada_dia, notificada_apertura, task:tasks!task_id(id, titulo, descripcion, frecuencia, prioridad, hora_limite, apertura, area, dia_semana, tienda)'
     )
     .is('completada_en', null)
     .overrideTypes<Instance[], { merge: false }>()
@@ -95,6 +97,9 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
     if (!inst.task) continue
     const task = inst.task
 
+    const destinatario =
+      (task.tienda && emailPorTienda[task.tienda]) || FALLBACK_EMAIL_TO
+
     const send = async (
       kind: NotifKind,
       plazoText: string,
@@ -111,7 +116,7 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
       })
       const result = await resend.emails.send({
         from: EMAIL_FROM,
-        to: EMAIL_TO_FINAL,
+        to: destinatario,
         subject,
         html,
       })
@@ -198,6 +203,29 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
 }
 
 type AdminClient = ReturnType<typeof createAdminClient>
+
+async function loadTiendaEmails(
+  admin: AdminClient
+): Promise<Record<string, string>> {
+  const { data, error } = await admin
+    .from('tiendas')
+    .select('slug, email_notificaciones')
+    .overrideTypes<
+      { slug: string; email_notificaciones: string }[],
+      { merge: false }
+    >()
+
+  if (error) {
+    console.error('loadTiendaEmails:', error)
+    return {}
+  }
+
+  const map: Record<string, string> = {}
+  for (const t of data ?? []) {
+    map[t.slug] = t.email_notificaciones
+  }
+  return map
+}
 
 async function generateMissingDailyInstances(
   admin: AdminClient,

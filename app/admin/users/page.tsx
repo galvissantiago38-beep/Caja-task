@@ -32,7 +32,7 @@ export default async function UsersPage({
 }: {
   searchParams: Promise<{ q?: string; rol?: string; ok?: string; error?: string }>
 }) {
-  const { user: currentUser } = await requireAdmin()
+  const { user: currentUser, profile: adminProfile } = await requireAdmin()
   const sp = await searchParams
 
   const admin = createAdminClient()
@@ -40,6 +40,7 @@ export default async function UsersPage({
   let query = admin
     .from('profiles')
     .select('id, nombre, email, rol')
+    .eq('tienda', adminProfile.tienda)
     .order('rol', { ascending: true })
     .order('nombre', { ascending: true })
 
@@ -70,12 +71,6 @@ export default async function UsersPage({
             el sistema
           </p>
         </div>
-        <Link
-          href="/admin/users/new"
-          className="bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors"
-        >
-          Nuevo usuario
-        </Link>
       </div>
 
       {sp.ok && (
@@ -169,19 +164,11 @@ function EmptyState({ filtered }: { filtered: boolean }) {
       <h3 className="font-serif text-xl sm:text-2xl text-stone-900 dark:text-stone-100 mb-2">
         {filtered ? 'Sin resultados' : 'Aún no hay usuarios'}
       </h3>
-      <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500 mb-8">
+      <p className="text-sm text-stone-600 dark:text-stone-400 dark:text-stone-500">
         {filtered
           ? 'Prueba con otra búsqueda o quita los filtros.'
-          : 'Crea el primer usuario del equipo.'}
+          : 'Solo hay una cuenta por tienda. Para crear una nueva tienda contacta al administrador del sistema.'}
       </p>
-      {!filtered && (
-        <Link
-          href="/admin/users/new"
-          className="inline-block bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 px-8 py-3 text-[11px] uppercase tracking-[0.25em] font-medium hover:bg-stone-700 dark:hover:bg-stone-300 transition-colors"
-        >
-          Crear usuario
-        </Link>
-      )}
     </div>
   )
 }

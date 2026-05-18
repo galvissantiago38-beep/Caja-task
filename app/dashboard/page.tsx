@@ -38,9 +38,19 @@ export default async function DashboardPage({
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('nombre, rol')
+    .select('nombre, rol, tienda')
     .eq('id', user.id)
     .single()
+
+  const { data: tienda } = profile?.tienda
+    ? await supabase
+        .from('tiendas')
+        .select('nombre')
+        .eq('slug', profile.tienda)
+        .single()
+    : { data: null }
+
+  const tiendaNombre = tienda?.nombre ?? 'Massimo Dutti'
 
   const { data: instances } = await supabase
     .from('task_instances')
@@ -101,7 +111,7 @@ export default async function DashboardPage({
 
         <div className="mb-10">
           <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
-            Massimo Dutti · Calle 82
+            {tiendaNombre}
           </p>
           <h1 className="font-serif text-3xl sm:text-5xl text-stone-900 dark:text-stone-100 leading-tight italic">
             {greetingForBogota()}.
@@ -161,12 +171,6 @@ export default async function DashboardPage({
         )}
 
         <section className="border-t border-stone-200 dark:border-stone-800 pt-10 mt-14 flex flex-wrap gap-6 text-[11px] uppercase tracking-[0.18em]">
-          <Link
-            href="/users/new"
-            className="text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 underline underline-offset-4 decoration-stone-300 dark:decoration-stone-700 hover:decoration-stone-900 dark:hover:decoration-stone-100 transition-colors"
-          >
-            + Crear usuario
-          </Link>
           <Link
             href="/tasks/historico"
             className="text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 underline underline-offset-4 decoration-stone-300 dark:decoration-stone-700 hover:decoration-stone-900 dark:hover:decoration-stone-100 transition-colors"

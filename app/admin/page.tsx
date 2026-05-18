@@ -4,8 +4,9 @@ import { requireAdmin } from './_lib/require-admin'
 import { ymdInBogota } from '@/lib/dates'
 
 export default async function AdminHome() {
-  await requireAdmin()
+  const { profile } = await requireAdmin()
   const admin = createAdminClient()
+  const tienda = profile.tienda
 
   const todayBogota = ymdInBogota(new Date())
   const monthStart = todayBogota.slice(0, 7) + '-01'
@@ -16,31 +17,42 @@ export default async function AdminHome() {
     { count: pendientes },
     { count: completadasMes },
     { count: notasTotales },
+    tiendaRow,
   ] = await Promise.all([
     admin
       .from('tasks')
       .select('id', { count: 'exact', head: true })
+      .eq('tienda', tienda)
       .eq('activa', true),
     admin
       .from('tasks')
       .select('id', { count: 'exact', head: true })
+      .eq('tienda', tienda)
       .eq('activa', false),
     admin
       .from('task_instances')
       .select('id', { count: 'exact', head: true })
+      .eq('tienda', tienda)
       .is('completada_en', null),
     admin
       .from('task_instances')
       .select('id', { count: 'exact', head: true })
+      .eq('tienda', tienda)
       .gte('completada_en', `${monthStart}T00:00:00`),
-    admin.from('notes').select('id', { count: 'exact', head: true }),
+    admin
+      .from('notes')
+      .select('id', { count: 'exact', head: true })
+      .eq('tienda', tienda),
+    admin.from('tiendas').select('nombre').eq('slug', tienda).single(),
   ])
+
+  const tiendaNombre = tiendaRow.data?.nombre ?? 'Massimo Dutti'
 
   return (
     <div className="space-y-14">
       <section>
         <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
-          Massimo Dutti · Calle 82
+          {tiendaNombre}
         </p>
         <h1 className="font-serif text-3xl sm:text-5xl text-stone-900 dark:text-stone-100 leading-tight">
           Vista general

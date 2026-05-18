@@ -2,7 +2,6 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { requireAdmin } from './_lib/require-admin'
 
@@ -13,62 +12,19 @@ function parseRol(value: FormDataEntryValue | null): Rol {
   return ROLES.includes(value as Rol) ? (value as Rol) : 'cajero'
 }
 
-export async function createUser(formData: FormData) {
-  // Cualquier usuario autenticado puede crear nuevas cuentas desde dentro
-  // de la app. Lo único cerrado es el signup público en /signup.
-  const supabase = await createClient()
-  const {
-    data: { user: actor },
-  } = await supabase.auth.getUser()
-  if (!actor) redirect('/login')
-
-  const email = String(formData.get('email') ?? '').trim().toLowerCase()
-  const password = String(formData.get('password') ?? '')
-  const nombre = String(formData.get('nombre') ?? '').trim()
-  const rol = parseRol(formData.get('rol'))
-  const redirectBase = String(formData.get('redirect_base') ?? '/users/new')
-
-  if (!email || !password || !nombre) {
-    redirect(`${redirectBase}?error=campos`)
-  }
-
-  const admin = createAdminClient()
-
-  const { data: created, error: authError } = await admin.auth.admin.createUser({
-    email,
-    password,
-    email_confirm: true,
-    user_metadata: { full_name: nombre },
-  })
-
-  if (authError || !created.user) {
-    console.error('createUser auth:', authError)
-    const code = authError?.message?.includes('already') ? 'duplicado' : 'auth'
-    redirect(`${redirectBase}?error=${code}`)
-  }
-
-  const { error: profileError } = await admin
+async function assertSameTienda(adminClient: ReturnType<typeof createAdminClient>, targetId: string, adminTienda: string) {
+  const { data } = await adminClient
     .from('profiles')
-    .upsert(
-      { id: created.user.id, nombre, email, rol },
-      { onConflict: 'id' }
-    )
-
-  if (profileError) {
-    console.error('createUser profile:', profileError)
-    // Limpiar el auth user que quedó huérfano
-    await admin.auth.admin.deleteUser(created.user.id)
-    redirect(`${redirectBase}?error=perfil`)
+    .select('tienda')
+    .eq('id', targetId)
+    .single()
+  if (data?.tienda !== adminTienda) {
+    redirect('/admin/users?error=fuera_tienda')
   }
-
-  revalidatePath('/admin')
-  revalidatePath('/admin/users')
-  revalidatePath('/dashboard')
-  redirect('/dashboard?ok=usuario_creado')
 }
 
 export async function updateUser(id: string, formData: FormData) {
-  await requireAdmin()
+  const { profile } = await requireAdmin()
 
   const nombre = String(formData.get('nombre') ?? '').trim()
   const rol = parseRol(formData.get('rol'))
@@ -78,6 +34,7 @@ export async function updateUser(id: string, formData: FormData) {
   }
 
   const admin = createAdminClient()
+  await assertSameTienda(admin, id, profile.tienda)
 
   const { error } = await admin
     .from('profiles')
@@ -95,7 +52,7 @@ export async function updateUser(id: string, formData: FormData) {
 }
 
 export async function resetUserPassword(id: string, formData: FormData) {
-  await requireAdmin()
+  const { profile } = await requireAdmin()
 
   const password = String(formData.get('password') ?? '')
 
@@ -104,6 +61,8 @@ export async function resetUserPassword(id: string, formData: FormData) {
   }
 
   const admin = createAdminClient()
+  await assertSameTienda(admin, id, profile.tienda)
+
   const { error } = await admin.auth.admin.updateUserById(id, { password })
 
   if (error) {
@@ -115,13 +74,15 @@ export async function resetUserPassword(id: string, formData: FormData) {
 }
 
 export async function deleteUser(id: string) {
-  const { user } = await requireAdmin()
+  const { user, profile } = await requireAdmin()
 
   if (user.id === id) {
     redirect('/admin/users?error=auto')
   }
 
   const admin = createAdminClient()
+  await assertSameTienda(admin, id, profile.tienda)
+
   const { error } = await admin.auth.admin.deleteUser(id)
 
   if (error) {

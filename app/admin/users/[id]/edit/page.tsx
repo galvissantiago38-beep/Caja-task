@@ -41,18 +41,18 @@ export default async function EditUserPage({
   params: Promise<{ id: string }>
   searchParams: Promise<{ ok?: string; error?: string }>
 }) {
-  const { user: currentUser } = await requireAdmin()
+  const { user: currentUser, profile: adminProfile } = await requireAdmin()
   const { id } = await params
   const sp = await searchParams
 
   const admin = createAdminClient()
   const { data: profile } = await admin
     .from('profiles')
-    .select('id, nombre, email, rol')
+    .select('id, nombre, email, rol, tienda')
     .eq('id', id)
-    .single<Profile>()
+    .single<Profile & { tienda: string | null }>()
 
-  if (!profile) {
+  if (!profile || profile.tienda !== adminProfile.tienda) {
     notFound()
   }
 
