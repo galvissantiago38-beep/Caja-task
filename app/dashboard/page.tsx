@@ -99,7 +99,7 @@ export default async function DashboardPage({
           </div>
         )}
 
-        <div className="mb-14">
+        <div className="mb-10">
           <p className="text-[11px] uppercase tracking-[0.25em] text-stone-500 dark:text-stone-400 mb-3">
             Massimo Dutti · Calle 82
           </p>
@@ -110,6 +110,17 @@ export default async function DashboardPage({
             Crecer haciendo crecer. Selecciona un área para ver y gestionar sus
             tareas.
           </p>
+        </div>
+
+        {/* Marca de agua editorial. Reemplazar src con la foto definitiva. */}
+        <div className="mb-14 w-full overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="https://picsum.photos/seed/mdutti-calle82/2400/700"
+            alt=""
+            aria-hidden="true"
+            className="w-full h-48 sm:h-64 object-cover grayscale opacity-30 dark:opacity-20"
+          />
         </div>
 
         <section>

@@ -46,7 +46,7 @@
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
   --font-sans: var(--font-inter);
-  --font-serif: var(--font-inter);
+  --font-serif: var(--font-playfair);
 }
 
 body {
@@ -60,10 +60,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Alias para mantener compat con código que usa font-serif: ahora es
-   Inter Light, no una serif. Massimo Dutti no usa serifa. */
+/* Títulos: Playfair Display, serif editorial. Peso 400 normal por defecto
+   para no quedar dramático; subir a 500/700 puntualmente si se quiere. */
 .font-serif {
-  font-family: var(--font-inter), "Inter", sans-serif;
-  font-weight: 300;
+  font-family: var(--font-playfair), "Playfair Display", Georgia, serif;
+  font-weight: 400;
   letter-spacing: -0.005em;
 }
