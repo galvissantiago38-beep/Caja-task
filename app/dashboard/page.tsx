@@ -116,7 +116,7 @@ export default async function DashboardPage({
         <div className="mb-14 w-full overflow-hidden">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="https://picsum.photos/seed/mdutti-calle82/2400/700"
+            src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=2400&q=80&auto=format&fit=crop"
             alt=""
             aria-hidden="true"
             className="w-full h-48 sm:h-64 object-cover grayscale opacity-30 dark:opacity-20"
