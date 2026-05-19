@@ -1,18 +1,28 @@
 import 'server-only'
-import { Resend } from 'resend'
+import nodemailer from 'nodemailer'
 import { createAdminClient } from './supabase/admin'
 import { addDays, formatDateEs, isoWeekday, ymdInBogota } from './dates'
 
 const APP_URL =
   process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, '') ||
-  'https://tasks-calle82.vercel.app'
-const EMAIL_FROM =
-  process.env.EMAIL_FROM || 'Caja Tasks <onboarding@resend.dev>'
+  'https://tasks-mdutti.vercel.app'
+
+const GMAIL_USER = process.env.GMAIL_USER ?? ''
+const GMAIL_APP_PASSWORD = process.env.GMAIL_APP_PASSWORD ?? ''
+const EMAIL_FROM = process.env.EMAIL_FROM || `Caja Tasks <${GMAIL_USER}>`
+
 // Fallback: si la tienda no tiene correo registrado en la tabla `tiendas`,
 // el cron usa este. Solo se debería usar como red de seguridad.
 const FALLBACK_EMAIL_TO =
   process.env.NOTIFICATIONS_TO?.trim() ||
   'mdutti.calle82@tendenzanova.com.co'
+
+function getMailer() {
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user: GMAIL_USER, pass: GMAIL_APP_PASSWORD },
+  })
+}
 
 const AREA_LABEL: Record<string, string> = {
   cajero: 'Caja',
@@ -58,7 +68,7 @@ export type NotificationsRunSummary = {
 
 export async function runNotifications(): Promise<NotificationsRunSummary> {
   const admin = createAdminClient()
-  const resend = new Resend(process.env.RESEND_API_KEY!)
+  const mailer = getMailer()
 
   const now = new Date()
   const todayBogota = ymdInBogota(now)
@@ -114,15 +124,12 @@ export async function runNotifications(): Promise<NotificationsRunSummary> {
         plazoText,
         area: task.area,
       })
-      const result = await resend.emails.send({
+      await mailer.sendMail({
         from: EMAIL_FROM,
         to: destinatario,
         subject,
         html,
       })
-      if (result.error) {
-        throw new Error(result.error.message)
-      }
       await admin
         .from('task_instances')
         .update({ [flagColumn]: true })
