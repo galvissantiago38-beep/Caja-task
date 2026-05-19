@@ -84,12 +84,6 @@ export default async function DashboardPage({
           </Link>
           <nav className="flex items-center gap-4 sm:gap-8">
             <ThemeToggle />
-            <Link
-              href="/profile"
-              className="text-[11px] uppercase tracking-[0.18em] text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 transition-colors"
-            >
-              Mi perfil
-            </Link>
             <form>
               <button
                 formAction={logout}
