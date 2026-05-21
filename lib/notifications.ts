@@ -216,9 +216,9 @@ async function loadTiendaEmails(
 ): Promise<Record<string, string>> {
   const { data, error } = await admin
     .from('tiendas')
-    .select('slug, email_notificaciones')
+    .select('slug, correo_notificaciones')
     .overrideTypes<
-      { slug: string; email_notificaciones: string }[],
+      { slug: string; correo_notificaciones: string }[],
       { merge: false }
     >()
 
@@ -229,7 +229,7 @@ async function loadTiendaEmails(
 
   const map: Record<string, string> = {}
   for (const t of data ?? []) {
-    map[t.slug] = t.email_notificaciones
+    map[t.slug] = t.correo_notificaciones
   }
   return map
 }
